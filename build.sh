@@ -1,54 +1,29 @@
 #!/bin/bash
 
-get_selected_directories() {
-    selected_dirs=()
-    for dir in "${dirs[@]}"; do
-        if grep -q "$dir" "$temp_file"; then
-            selected_dirs+=("$dir")
-        fi
-    done
-}
+dotfiles="$(dirname "$(readlink -f "$0")")"
 
-confirmation_dialog() {
-    selected_str=$(printf "%s " "${selected_dirs[@]}")
-    dialog --yesno "Are you sure you want to copy the following directories to /home/sam?\n\n$selected_str" 10 60
-}
+sudo apt update -y && sudo apt full-upgrade -y
 
-dir=~/.dotfiles
+sudo snap install nvim --classic
 
-temp_file=$(mktemp /tmp/dialog.XXXXXX) || exit 1
+sudo apt install zsh -y
 
-dirs=("$dir"/*)
-filtered_dirs=()
-for d in "${dirs[@]}"; do
-    if [ "$(basename "$d")" != "README.md" ] && [ "$(basename "$d")" != "build.sh" ]; then
-        filtered_dirs+=("$d")
-    fi
-done
+sudo chsh -s /usr/bin/zsh $USER
 
-options=()
-for d in "${filtered_dirs[@]}"; do
-    options+=("$d" "" on)
-done
+sudo cp -r $dotfiles/konsole/. /home/$USER/
+ 
+sudo cp -r $dotfiles/zsh/. /home/$USER/
 
-dialog --checklist "Select directories to copy to /home/sam" 20 60 10 "${options[@]}" 2> "$temp_file"
+sudo cp -r $dotfiles/.ssh/. /home/$USER/
 
-if [ $? -ne 0 ]; then
-    echo "Operation canceled."
-    rm -f "$temp_file"
-    clear
-    exit 0
-fi
+sudo cp -r $dotfiles/nvim/. /home/$USER/
 
-get_selected_directories
-
-if confirmation_dialog; then
-    for selected_dir in "${selected_dirs[@]}"; do
-        cp -rT "$selected_dir" /home/sam/ >/dev/null 2>&1
-    done
-else
-    echo "Operation canceled."
-fi
-
-rm -f "$temp_file"
 clear
+
+echo ""
+echo ""
+echo ""
+echo "done"
+echo ""
+echo ""
+echo ""
