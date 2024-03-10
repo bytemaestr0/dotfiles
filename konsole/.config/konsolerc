@@ -1,0 +1,85 @@
+DP-2 Window-Maximized 1920x1080=true
+DisplayPort-0 HDMI-A-0 Window-Maximized 1707x960=true
+MenuBar=Disabled
+State=AAAA/wAAAAD9AAAAAQAAAAAAAAAAAAAAAPwCAAAAAfsAAAAcAFMAUwBIAE0AYQBuAGEAZwBlAHIARABvAGMAawAAAAAA/////wAAANMBAAADAAAHgAAAA8MAAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAgAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAAAAAAcAHMAZQBzAHMAaQBvAG4AVABvAG8AbABiAGEAcgEAAAD8/////wAAAAAAAAAA
+
+[Desktop Entry]
+DefaultProfile=abckjhabc.profile
+
+[KFileDialog Settings]
+detailViewIconSize=16
+
+[MainWindow]
+DP-2 HDMI-0 Height 1920x1080=1009
+DP-2 HDMI-0 Width 1920x1080=960
+DP-2 HDMI-0 XPosition 1920x1080=0
+DP-2 HDMI-0 YPosition 1920x1080=31
+DP-2 HDMI-1 Height 1920x1080=639
+DP-2 HDMI-1 Width 1920x1080=1472
+DP-2 HDMI-1 XPosition 1920x1080=2079
+DP-2 HDMI-1 YPosition 1920x1080=174
+DP-2 Height 1920x1080=1009
+DP-2 Width 1920x1080=960
+DP-2 XPosition 1920x1080=960
+DP-2 YPosition 1920x1080=31
+DP-4 HDMI-0 Height 1920x1080=1009
+DP-4 HDMI-0 Width 1920x1080=1920
+DP-4 HDMI-0 Window-Maximized 1920x1080=true
+DP-4 HDMI-0 XPosition 1920x1080=1924
+DP-4 HDMI-0 YPosition 1920x1080=31
+DP-4 Height 1920x1080=1009
+DP-4 Width 1920x1080=1920
+DP-4 Window-Maximized 1920x1080=true
+DP-4 XPosition 1920x1080=603
+DP-4 YPosition 1920x1080=31
+DisplayPort-0 HDMI-A-0 Height 1707x960=500
+DisplayPort-0 HDMI-A-0 Height 1920x1080=626
+DisplayPort-0 HDMI-A-0 Width 1707x960=1148
+DisplayPort-0 HDMI-A-0 Width 1920x1080=1068
+DisplayPort-0 HDMI-A-0 Window-Maximized 1707x960=true
+DisplayPort-0 HDMI-A-0 Window-Maximized 1920x1080=true
+DisplayPort-0 HDMI-A-0 XPosition 1707x960=2478
+DisplayPort-0 HDMI-A-0 XPosition 1920x1080=681
+DisplayPort-0 HDMI-A-0 YPosition 1707x960=226
+DisplayPort-0 HDMI-A-0 YPosition 1920x1080=99
+DisplayPort-0 Height 1707x960=213
+DisplayPort-0 Width 1707x960=834
+DisplayPort-0 Window-Maximized 1707x960=true
+DisplayPort-0 Window-Maximized 1920x1080=true
+DisplayPort-0 XPosition 1707x960=903
+DisplayPort-0 XPosition 1920x1080=834
+DisplayPort-0 YPosition 1707x960=307
+DisplayPort-0 YPosition 1920x1080=484
+HDMI-0 DP-2 Height 1920x1080=1009
+HDMI-0 DP-2 Width 1920x1080=1920
+HDMI-0 DP-2 Window-Maximized 1920x1080=true
+HDMI-0 DP-2 XPosition 1920x1080=0
+HDMI-0 DP-2 YPosition 1920x1080=31
+HDMI-A-0 DisplayPort-0 Height 1707x960=170
+HDMI-A-0 DisplayPort-0 Height 1920x1080=745
+HDMI-A-0 DisplayPort-0 Width 1707x960=834
+HDMI-A-0 DisplayPort-0 Width 1920x1080=1135
+HDMI-A-0 DisplayPort-0 Window-Maximized 1920x1080=true
+HDMI-A-0 DisplayPort-0 XPosition 1707x960=604
+HDMI-A-0 DisplayPort-0 XPosition 1920x1080=2137
+HDMI-A-0 DisplayPort-0 YPosition 1707x960=148
+HDMI-A-0 DisplayPort-0 YPosition 1920x1080=181
+HDMI-A-0 Height 1920x1080=92
+HDMI-A-0 Width 1920x1080=1647
+HDMI-A-0 Window-Maximized 1920x1080=true
+HDMI-A-0 XPosition 1920x1080=95
+HDMI-A-0 YPosition 1920x1080=102
+RestorePositionForNextInstance=false
+State=AAAA/wAAAAD9AAAAAQAAAAAAAAAAAAAAAPwCAAAAAfsAAAAcAFMAUwBIAE0AYQBuAGEAZwBlAHIARABvAGMAawAAAAAA/////wAAANMBAAADAAADwAAAA6EAAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAgAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAAAAAAcAHMAZQBzAHMAaQBvAG4AVABvAG8AbABiAGEAcgEAAAD8/////wAAAAAAAAAA
+ToolBarsMovable=Disabled
+
+[Notification Messages]
+CloseAllTabs=true
+
+[PrintOptions]
+PrinterFriendly=true
+ScaleOutput=true
+
+[UiSettings]
+ColorScheme=Breeze Dark
+WindowColorScheme=Breeze Dark
