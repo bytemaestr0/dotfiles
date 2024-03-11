@@ -10,6 +10,8 @@ sudo apt install zsh -y
 
 sudo chsh -s /usr/bin/zsh $USER
 
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
 sudo cp -r $dotfiles/konsole/. /home/$USER/
  
 sudo cp -r $dotfiles/zsh/. /home/$USER/

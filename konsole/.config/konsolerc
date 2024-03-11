@@ -6,6 +6,9 @@ State=AAAA/wAAAAD9AAAAAQAAAAAAAAAAAAAAAPwCAAAAAfsAAAAcAFMAUwBIAE0AYQBuAGEAZwBlAH
 [Desktop Entry]
 DefaultProfile=abckjhabc.profile
 
+[General]
+ConfigVersion=1
+
 [KFileDialog Settings]
 detailViewIconSize=16
 
@@ -70,7 +73,6 @@ HDMI-A-0 Window-Maximized 1920x1080=true
 HDMI-A-0 XPosition 1920x1080=95
 HDMI-A-0 YPosition 1920x1080=102
 RestorePositionForNextInstance=false
-State=AAAA/wAAAAD9AAAAAQAAAAAAAAAAAAAAAPwCAAAAAfsAAAAcAFMAUwBIAE0AYQBuAGEAZwBlAHIARABvAGMAawAAAAAA/////wAAANMBAAADAAADwAAAA6EAAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAgAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAAAAAAcAHMAZQBzAHMAaQBvAG4AVABvAG8AbABiAGEAcgEAAAD8/////wAAAAAAAAAA
 ToolBarsMovable=Disabled
 
 [Notification Messages]
@@ -82,4 +84,3 @@ ScaleOutput=true
 
 [UiSettings]
 ColorScheme=Breeze Dark
-WindowColorScheme=Breeze Dark
