@@ -22,4 +22,5 @@ alias apt="sudo nala"
 alias nala="sudo nala"
 alias lal="ls -al"
 alias l="ls"
+alias sudo='sudo '
 export PATH=$PATH:/home/sam/.spicetify
