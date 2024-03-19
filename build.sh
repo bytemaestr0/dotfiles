@@ -15,7 +15,7 @@ if command -v nvim &> /dev/null; then
     echo "neovim is installed"
 else
     echo "neovim is not installed"
-    sudo apt install ninja-build gettext cmake unzip curl build-essential nala -y
+    sudo apt install ninja-build gettext cmake unzip curl build-essential -y
 
     git clone https://github.com/neovim/neovim
 
@@ -27,6 +27,8 @@ else
 
 fi
 
+sudo apt install nala konsole neofetch xclip -y
+
 sudo cp -r $dotfiles/konsole/. $HOME/
  
 sudo cp -r $dotfiles/zsh/. $HOME/
@@ -36,8 +38,6 @@ sudo cp -r $dotfiles/ssh/. $HOME/
 sudo cp -r $dotfiles/nvim/. $HOME/
 
 git config --global --add oh-my-zsh.hide-dirty 1
-
-sudo nala install xclip
 
 set clipboard+=xclip
 
