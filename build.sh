@@ -27,7 +27,7 @@ else
 
 fi
 
-sudo apt install nala konsole neofetch xclip -y
+sudo apt install gh nala konsole neofetch xclip -y
 
 sudo cp -r $dotfiles/konsole/. $HOME/
  
