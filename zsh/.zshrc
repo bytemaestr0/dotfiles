@@ -1,6 +1,6 @@
 ZSH_DISABLE_COMPFIX="true"
 export ZSH="$HOME/.oh-my-zsh"
-export DOTFILES="$HOME/.dotfiles"
+export DOTFILES="$HOME/dotfiles"
 ZSH_THEME="af-magic"
 DISABLE_LS_COLORS="true"
 # ENABLE_CORRECTION="true"

@@ -69,6 +69,8 @@ rm ~/0xProto.zip
 
 kwriteconfig5 --file konsolerc --group 'Appearance' --key 'Font' '0xProtoNerdFontMono-Regular'
 
+chmod -R u=rwX,go=rX ~/ && chown -R kali:kali ~/
+
 clear 
 
 echo "done"
