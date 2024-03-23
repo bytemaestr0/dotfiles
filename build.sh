@@ -2,32 +2,47 @@
 
 dotfiles="$(dirname "$(readlink -f "$0")")"
 
-sudo apt update -y && sudo apt full-upgrade -y
+if command -v apt &> /dev/null; then
+	update="sudo apt update"
+	upgrade="sudo apt upgrade"
+	install="sudo apt install"
+	autoyes="-y"
+	system="debi"
+	sudo apt install -y gh nala
+elif command -v pacman &> /dev/null; then
+	update="sudo pacman -Sy"
+	upgrade="sudo pacman -Su"
+	install="sudo pacman -S"
+	autoyes="--noconfirm"
+	system="arch"
+else
+	echo "no package manager detected"
+	exit
+fi
 
-sudo apt install git -y
+$update $autoyes && $upgrade $autoyes
 
-sudo apt install zsh -y
+$install $autoyes git zsh
 
-sudo chsh -s /usr/bin/zsh $USER
+sudo chsh -s /bin/zsh $USER
 
 # install neovim
 if command -v nvim &> /dev/null; then
     echo "neovim is installed"
 else
-    echo "neovim is not installed"
-    sudo apt install ninja-build gettext cmake unzip curl build-essential -y
-
-    git clone https://github.com/neovim/neovim
-
-    cd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo
-
-    sudo make install
-
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-
+    if [$system == "debi"]; then
+    	echo "neovim is not installed"
+    	$install $autoyes ninja-build gettext cmake unzip curl build-essential
+ 	    git clone https://github.com/neovim/neovim
+    	cd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo
+    	sudo make install
+    	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    else 
+	    $install $autoyes neovim
+    fi
 fi
 
-sudo apt install gh nala konsole neofetch xclip -y
+$install $autoyes konsole neofetch xclip
 
 sudo cp -r $dotfiles/konsole/. $HOME/
  
@@ -40,8 +55,6 @@ sudo cp -r $dotfiles/nvim/. $HOME/
 git config --global --add oh-my-zsh.hide-dirty 1
 
 set clipboard+=xclip
-
-sudo chmod -R a+rw $HOME/.local/share/nvim/
 
 cd ..
 
@@ -69,9 +82,9 @@ rm ~/0xProto.zip
 
 kwriteconfig5 --file konsolerc --group 'Appearance' --key 'Font' '0xProtoNerdFontMono-Regular'
 
-chmod -R u=rwX,go=rX ~/ && chown -R kali:kali ~/
-
-clear 
+chmod -R u=rwX,go=rX ~/ && chown -R $USER:$USER ~/
 
 echo "done"
+
+/bin/zsh
 
