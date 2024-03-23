@@ -14,6 +14,7 @@ function git_prompt_info() {
     echo "${ZSH_THEME_GIT_PROMPT_PREFIX}${ref}${ZSH_THEME_GIT_PROMPT_CLEAN}${ZSH_THEME_GIT_PROMPT_SUFFIX}"
 }
 source $ZSH/oh-my-zsh.sh
+alias sudo="sudo "
 alias python="python3"
 alias cdp="cd - > /dev/null"
 alias tvim="time nvim"
