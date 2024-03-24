@@ -75,7 +75,10 @@ else
 fi
 
 sudo chmod -R u=rwX,go=rX ~/ && sudo chown -R $realuser:$realuser ~/
-sudo chmod 700 ~/.ssh
+sudo chmod -R 600 ~/.ssh 
+sudo chmod u+x ~/.ssh 
+sudo chmod a+r ~/.ssh/*.pub
+
 echo "done."
 
 /bin/zsh
