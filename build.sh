@@ -37,33 +37,33 @@ else
         git clone https://github.com/neovim/neovim
         cd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo
         sudo make install
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     else
-        $install $autoyes neovim
-    fi
+      $install $autoyes neovim
+    fi 
 fi
-
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+   
 $install $autoyes konsole neofetch xclip
 
 sudo cp -r $dotfiles/konsole/. $HOME/
 sudo cp -r $dotfiles/zsh/. $HOME/
-sudo cp -r $dotfiles/ssh/. $HOME/
 sudo cp -r $dotfiles/nvim/. $HOME/
 
 git config --global --add oh-my-zsh.hide-dirty 1
 
-# note: set clipboard+=xclip should be placed in vim configuration file, not here
-
-cd $HOME/
-
-curl -LO https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/0xProto.zip 
-mkdir tempora
-unzip 0xProto.zip -d tempora
-sudo rm tempora/LICENSE tempora/README.md
-sudo mv tempora/* /usr/share/fonts/
-sudo fc-cache -f -v >/dev/null
-rmdir $HOME/tempora
-rm ~/0xProto.zip
+if [ ! -f "/usr/share/fonts/0xProtoNerdFontMono-Regular.ttf" ]; then
+        echo "font is not installed."
+        curl -LO https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/0xProto.zip 
+        mkdir tempora
+        unzip 0xProto.zip -d tempora
+        sudo rm tempora/LICENSE tempora/README.md
+        sudo mv tempora/* /usr/share/fonts/
+        sudo fc-cache -f -v >/dev/null
+        rmdir tempora
+        rm ~/0xProto.zip
+else
+  echo "font is installed, applying"
+fi
 
 if command -v apt &>/dev/null; then
     kwriteconfig5 --file konsolerc --group 'Appearance' --key 'Font' '0xProtoNerdFontMono-Regular'
@@ -76,9 +76,6 @@ fi
 
 sudo chmod -R u=rwX,go=rX ~/ && sudo chown -R $realuser:$realuser ~/
 sudo chmod 700 ~/.ssh
-
-sudo 
-
 echo "done."
 
 /bin/zsh

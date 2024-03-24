@@ -4,7 +4,7 @@ MenuBar=Disabled
 State=AAAA/wAAAAD9AAAAAQAAAAAAAAAAAAAAAPwCAAAAAfsAAAAcAFMAUwBIAE0AYQBuAGEAZwBlAHIARABvAGMAawAAAAAA/////wAAANMBAAADAAAHgAAAA8MAAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAgAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAAAAAAcAHMAZQBzAHMAaQBvAG4AVABvAG8AbABiAGEAcgEAAAD8/////wAAAAAAAAAA
 
 [Desktop Entry]
-DefaultProfile=abckjhabc.profile
+DefaultProfile=test.profile
 
 [General]
 ConfigVersion=1
@@ -72,6 +72,7 @@ HDMI-A-0 Width 1920x1080=1647
 HDMI-A-0 Window-Maximized 1920x1080=true
 HDMI-A-0 XPosition 1920x1080=95
 HDMI-A-0 YPosition 1920x1080=102
+MenuBar=Enabled
 RestorePositionForNextInstance=false
 ToolBarsMovable=Disabled
 
