@@ -76,6 +76,8 @@ fi
 
 sudo chmod -R u=rwX,go=rX ~/ && sudo chown -R $realuser:$realuser ~/
 
+sudo 
+
 echo "done."
 
 /bin/zsh
