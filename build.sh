@@ -48,6 +48,7 @@ $install $autoyes konsole neofetch xclip
 sudo cp -r $dotfiles/konsole/. $HOME/
 sudo cp -r $dotfiles/zsh/. $HOME/
 sudo cp -r $dotfiles/nvim/. $HOME/
+sudo cp -r $dotfiles/plasma/. $HOME/
 
 git config --global --add oh-my-zsh.hide-dirty 1
 
