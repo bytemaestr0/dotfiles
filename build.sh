@@ -75,6 +75,7 @@ else
 fi
 
 sudo chmod -R u=rwX,go=rX ~/ && sudo chown -R $realuser:$realuser ~/
+sudo chmod 700 ~/.ssh
 
 sudo 
 
