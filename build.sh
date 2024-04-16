@@ -61,7 +61,7 @@ if [ ! -f "/usr/share/fonts/0xProtoNerdFontMono-Regular.ttf" ]; then
         sudo mv tempora/* /usr/share/fonts/
         sudo fc-cache -f -v >/dev/null
         rmdir tempora
-        rm ~/0xProto.zip
+        rm 0xProto.zip
 else
   echo "font is installed, applying"
 fi
