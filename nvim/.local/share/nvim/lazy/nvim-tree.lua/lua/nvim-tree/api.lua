@@ -2,6 +2,7 @@ local lib = require "nvim-tree.lib"
 local view = require "nvim-tree.view"
 local utils = require "nvim-tree.utils"
 local actions = require "nvim-tree.actions"
+local appearance_diagnostics = require "nvim-tree.appearance.diagnostics"
 local events = require "nvim-tree.events"
 local help = require "nvim-tree.help"
 local live_filter = require "nvim-tree.live-filter"
@@ -39,6 +40,7 @@ local Api = {
     mappings = {},
   },
   commands = {},
+  diagnostics = {},
 }
 
 --- Do nothing when setup not called.
@@ -126,6 +128,7 @@ Api.tree.find_file = wrap(actions.tree.find_file.fn)
 Api.tree.search_node = wrap(actions.finders.search_node.fn)
 Api.tree.collapse_all = wrap(actions.tree.modifiers.collapse_all.fn)
 Api.tree.expand_all = wrap_node(actions.tree.modifiers.expand_all.fn)
+Api.tree.toggle_enable_filters = wrap(actions.tree.modifiers.toggles.enable)
 Api.tree.toggle_gitignore_filter = wrap(actions.tree.modifiers.toggles.git_ignored)
 Api.tree.toggle_git_clean_filter = wrap(actions.tree.modifiers.toggles.git_clean)
 Api.tree.toggle_no_buffer_filter = wrap(actions.tree.modifiers.toggles.no_buffer)
@@ -161,6 +164,7 @@ Api.fs.print_clipboard = wrap(actions.fs.copy_paste.print_clipboard)
 Api.fs.copy.node = wrap_node(actions.fs.copy_paste.copy)
 Api.fs.copy.absolute_path = wrap_node(actions.fs.copy_paste.copy_absolute_path)
 Api.fs.copy.filename = wrap_node(actions.fs.copy_paste.copy_filename)
+Api.fs.copy.basename = wrap_node(actions.fs.copy_paste.copy_basename)
 Api.fs.copy.relative_path = wrap_node(actions.fs.copy_paste.copy_path)
 
 ---@param mode string
@@ -244,6 +248,8 @@ Api.marks.navigate.select = wrap(marks_navigation.select)
 Api.config.mappings.get_keymap = wrap(keymap.get_keymap)
 Api.config.mappings.get_keymap_default = wrap(keymap.get_keymap_default)
 Api.config.mappings.default_on_attach = keymap.default_on_attach
+
+Api.diagnostics.hi_test = wrap(appearance_diagnostics.hi_test)
 
 Api.commands.get = wrap(function()
   return require("nvim-tree.commands").get()

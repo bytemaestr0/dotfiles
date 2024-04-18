@@ -1,77 +1,74 @@
 local colors = require("base46").get_theme_tb "base_30"
 
-local config = require("core.utils").load_config().ui
+local config = require("nvconfig").ui
 
 local highlights = {
 
-  TblineFill = {
+  TbFill = {
     bg = colors.black2,
   },
 
-  TbLineBufOn = {
+  TbBufOn = {
     fg = colors.white,
     bg = colors.black,
   },
 
-  TbLineBufOff = {
+  TbBufOff = {
     fg = colors.light_grey,
     bg = colors.black2,
   },
 
-  TbLineBufOnModified = {
+  TbBufOnModified = {
     fg = colors.green,
     bg = colors.black,
   },
 
-  TbLineBufOffModified = {
+  TbBufOffModified = {
     fg = colors.red,
     bg = colors.black2,
   },
 
-  TbLineBufOnClose = {
+  TbBufOnClose = {
     fg = colors.red,
     bg = colors.black,
   },
 
-  TbLineBufOffClose = {
+  TbBufOffClose = {
     fg = colors.light_grey,
     bg = colors.black2,
   },
 
-  TblineTabNewBtn = {
-    fg = colors.white,
-    bg = colors.one_bg3,
-    bold = true,
-  },
-
-  TbLineTabOn = {
-    fg = colors.black,
-    bg = colors.nord_blue,
-    bold = true,
-  },
-
-  TbLineTabOff = {
+  TbTabNewBtn = {
     fg = colors.white,
     bg = colors.one_bg2,
   },
 
-  TbLineTabCloseBtn = {
+  TbTabOn = {
+    fg = colors.red,
+  },
+
+  TbTabOff = {
+    fg = colors.white,
+    bg = colors.black2,
+  },
+
+  TbTabCloseBtn = {
     fg = colors.black,
     bg = colors.nord_blue,
   },
 
   TBTabTitle = {
     fg = colors.black,
-    bg = colors.white,
+    bg = colors.blue,
   },
 
-  TbLineThemeToggleBtn = {
+  TbThemeToggleBtn = {
     bold = true,
     fg = colors.white,
     bg = colors.one_bg3,
   },
 
-  TbLineCloseAllBufsBtn = {
+  TbCloseAllBufsBtn = {
     bold = true,
     bg = colors.red,
     fg = colors.black,
@@ -79,13 +76,13 @@ local highlights = {
 }
 
 local hlgroups_glassy = {
-  "TblineFill",
-  "TbLineBufOn",
-  "TbLineBufOff",
-  "TbLineBufOnClose",
-  "TbLineBufOffClose",
-  "TbLineBufOnModified",
-  "TbLineBufOffModified"
+  "TbFill",
+  "TbBufOn",
+  "TbBufOff",
+  "TbBufOnClose",
+  "TbBufOffClose",
+  "TbBufOnModified",
+  "TbBufOffModified",
 }
 
 if config.transparency then

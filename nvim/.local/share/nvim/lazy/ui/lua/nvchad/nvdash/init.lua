@@ -4,7 +4,7 @@ local fn = vim.fn
 
 dofile(vim.g.base46_cache .. "nvdash")
 
-local config = require("core.utils").load_config().ui.nvdash
+local config = require("nvconfig").ui.nvdash
 
 local headerAscii = config.header
 local emmptyLine = string.rep(" ", vim.fn.strwidth(headerAscii[1]))
@@ -23,12 +23,19 @@ api.nvim_create_autocmd("BufLeave", {
   end,
 })
 
-local nvdashWidth = #headerAscii[1] + 3
-
-local max_height = #headerAscii + 4 + (2 * #config.buttons) -- 4  = extra spaces i.e top/bottom
-local get_win_height = api.nvim_win_get_height
+local map = function(keys, action)
+  for _, v in ipairs(keys) do
+    vim.keymap.set("n", v, action, { buffer = true })
+  end
+end
 
 M.open = function()
+  local buttons = config.buttons
+  local nvdashWidth = #headerAscii[1] + 3
+
+  local max_height = #headerAscii + 4 + (2 * #buttons) -- 4  = extra spaces i.e top/bottom
+  local get_win_height = api.nvim_win_get_height
+
   vim.g.nv_previous_buf = vim.api.nvim_get_current_buf()
 
   local buf = vim.api.nvim_create_buf(false, true)
@@ -42,11 +49,7 @@ M.open = function()
 
   api.nvim_win_set_buf(win, buf)
 
-  vim.opt_local.filetype = "nvdash"
-  vim.g.nvdash_displayed = true
-
   local header = headerAscii
-  local buttons = config.buttons
 
   local function addSpacing_toBtns(txt1, txt2)
     local btn_len = fn.strwidth(txt1) + fn.strwidth(txt2)
@@ -66,7 +69,8 @@ M.open = function()
   end
 
   for _, val in ipairs(buttons) do
-    table.insert(dashboard, addSpacing_toBtns(val[1], val[2]) .. " ")
+    local str = type(val) ~= "table" and val() or nil
+    table.insert(dashboard, str or addSpacing_toBtns(val[1], val[2]) .. " ")
     table.insert(dashboard, header[1] .. " ")
   end
 
@@ -104,35 +108,31 @@ M.open = function()
   local first_btn_line = abc + #header + 2
   local keybind_lineNrs = {}
 
-  for _, _ in ipairs(config.buttons) do
+  for _, _ in ipairs(buttons) do
     table.insert(keybind_lineNrs, first_btn_line - 2)
     first_btn_line = first_btn_line + 2
   end
 
-  vim.keymap.set("n", "h", "", { buffer = true })
-  vim.keymap.set("n", "<Left>", "", { buffer = true })
-  vim.keymap.set("n", "l", "", { buffer = true })
-  vim.keymap.set("n", "<Right>", "", { buffer = true })
-  vim.keymap.set("n", "<Up>", "", { buffer = true })
-  vim.keymap.set("n", "<Down>", "", { buffer = true })
+  -- disable left/right
+  map({ "h", "l", "<left>", "<right>" }, "")
 
-  vim.keymap.set("n", "k", function()
+  map({ "k", "<up>" }, function()
     local cur = fn.line "."
     local target_line = cur == keybind_lineNrs[1] and keybind_lineNrs[#keybind_lineNrs] or cur - 2
     api.nvim_win_set_cursor(win, { target_line, math.floor(vim.o.columns / 2) - 13 })
-  end, { buffer = true })
+  end)
 
-  vim.keymap.set("n", "j", function()
+  map({ "j", "<down>" }, function()
     local cur = fn.line "."
     local target_line = cur == keybind_lineNrs[#keybind_lineNrs] and keybind_lineNrs[1] or cur + 2
     api.nvim_win_set_cursor(win, { target_line, math.floor(vim.o.columns / 2) - 13 })
-  end, { buffer = true })
+  end)
 
   -- pressing enter on
   vim.keymap.set("n", "<CR>", function()
     for i, val in ipairs(keybind_lineNrs) do
       if val == fn.line "." then
-        local action = config.buttons[i][3]
+        local action = buttons[i][3]
 
         if type(action) == "string" then
           vim.cmd(action)
@@ -143,15 +143,7 @@ M.open = function()
     end
   end, { buffer = true })
 
-  -- buf only options
-  vim.opt_local.buflisted = false
-  vim.opt_local.modifiable = false
-  vim.opt_local.number = false
-  vim.opt_local.list = false
-  vim.opt_local.relativenumber = false
-  vim.opt_local.wrap = false
-  vim.opt_local.cul = false
-  vim.opt_local.colorcolumn = "0"
+  require("nvchad.utils").set_cleanbuf_opts "nvdash"
 end
 
 return M

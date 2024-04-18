@@ -14,7 +14,6 @@ function git_prompt_info() {
     echo "${ZSH_THEME_GIT_PROMPT_PREFIX}${ref}${ZSH_THEME_GIT_PROMPT_CLEAN}${ZSH_THEME_GIT_PROMPT_SUFFIX}"
 }
 source $ZSH/oh-my-zsh.sh
-alias sudo="sudo "
 alias python="python3"
 alias cdp="cd - > /dev/null"
 alias tvim="time nvim"
@@ -22,4 +21,7 @@ alias vim="nvim"
 alias fvim="vim "
 alias lal="ls -al"
 alias l="ls"
-export PATH=$PATH:/home/sam/.spicetify
+alias sudo='sudo '
+export PATH=$PATH:/home/elliot/.spicetify
+export QSG_RENDER_LOOP=basic
+export clipboard="wl-clipboard"

@@ -1,7 +1,7 @@
 local new_cmd = vim.api.nvim_create_user_command
-local config = require("core.utils").load_config().ui
+local config = require("nvconfig").ui
 
-vim.opt.statusline = "%!v:lua.require('nvchad.statusline." .. config.statusline.theme .. "').run()"
+vim.opt.statusline = "%!v:lua.require('nvchad.stl." .. config.statusline.theme .. "')()"
 
 if config.tabufline.enabled then
   require "nvchad.tabufline.lazyload"
@@ -18,7 +18,7 @@ end, {})
 
 -- load nvdash only on empty file
 if config.nvdash.load_on_startup then
-  vim.defer_fn(function()
+  vim.schedule(function()
     local buf_lines = vim.api.nvim_buf_get_lines(0, 0, 1, false)
     local no_buf_content = vim.api.nvim_buf_line_count(0) == 1 and buf_lines[1] == ""
     local bufname = vim.api.nvim_buf_get_name(0)

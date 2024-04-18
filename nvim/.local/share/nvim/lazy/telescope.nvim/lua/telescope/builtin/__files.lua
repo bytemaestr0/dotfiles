@@ -115,12 +115,12 @@ files.live_grep = function(opts)
   end
   local search_dirs = opts.search_dirs
   local grep_open_files = opts.grep_open_files
-  opts.cwd = opts.cwd and vim.fn.expand(opts.cwd) or vim.loop.cwd()
+  opts.cwd = opts.cwd and utils.path_expand(opts.cwd) or vim.loop.cwd()
 
   local filelist = get_open_filelist(grep_open_files, opts.cwd)
   if search_dirs then
     for i, path in ipairs(search_dirs) do
-      search_dirs[i] = vim.fn.expand(path)
+      search_dirs[i] = utils.path_expand(path)
     end
   end
 
@@ -246,7 +246,7 @@ files.grep_string = function(opts)
     end
   elseif opts.search_dirs then
     for _, path in ipairs(opts.search_dirs) do
-      table.insert(args, vim.fn.expand(path))
+      table.insert(args, utils.path_expand(path))
     end
   end
 
@@ -299,7 +299,7 @@ files.find_files = function(opts)
 
   if search_dirs then
     for k, v in pairs(search_dirs) do
-      search_dirs[k] = vim.fn.expand(v)
+      search_dirs[k] = utils.path_expand(v)
     end
   end
 
@@ -376,7 +376,7 @@ files.find_files = function(opts)
   end
 
   if opts.cwd then
-    opts.cwd = vim.fn.expand(opts.cwd)
+    opts.cwd = utils.path_expand(opts.cwd)
   end
 
   opts.entry_maker = opts.entry_maker or make_entry.gen_from_file(opts)
@@ -466,7 +466,7 @@ end
 
 files.current_buffer_fuzzy_find = function(opts)
   -- All actions are on the current buffer
-  local filename = vim.fn.expand(vim.api.nvim_buf_get_name(opts.bufnr))
+  local filename = vim.api.nvim_buf_get_name(opts.bufnr)
   local filetype = vim.api.nvim_buf_get_option(opts.bufnr, "filetype")
 
   local lines = vim.api.nvim_buf_get_lines(opts.bufnr, 0, -1, false)
@@ -537,16 +537,36 @@ files.current_buffer_fuzzy_find = function(opts)
       sorter = conf.generic_sorter(opts),
       previewer = conf.grep_previewer(opts),
       attach_mappings = function()
-        action_set.select:enhance {
-          post = function()
-            local selection = action_state.get_selected_entry()
-            if not selection then
-              return
-            end
+        actions.select_default:replace(function(prompt_bufnr)
+          local selection = action_state.get_selected_entry()
+          if not selection then
+            utils.__warn_no_selection "builtin.current_buffer_fuzzy_find"
+            return
+          end
+          local current_picker = action_state.get_current_picker(prompt_bufnr)
+          local searched_for = require("telescope.actions.state").get_current_line()
 
-            vim.api.nvim_win_set_cursor(0, { selection.lnum, 0 })
-          end,
-        }
+          ---@type number[] | {start:number, end:number?, highlight:string?}[]
+          local highlights = current_picker.sorter:highlighter(searched_for, selection.ordinal) or {}
+          highlights = vim.tbl_map(function(hl)
+            if type(hl) == "table" and hl.start then
+              return hl.start
+            elseif type(hl) == "number" then
+              return hl
+            end
+            error "Invalid higlighter fn"
+          end, highlights)
+
+          local first_col = 0
+          if #highlights > 0 then
+            first_col = math.min(unpack(highlights)) - 1
+          end
+
+          actions.close(prompt_bufnr)
+          vim.schedule(function()
+            vim.api.nvim_win_set_cursor(0, { selection.lnum, first_col })
+          end)
+        end)
 
         return true
       end,
@@ -591,7 +611,7 @@ files.tags = function(opts)
                 return "\\" .. x
               end)
 
-              vim.cmd "norm! gg"
+              vim.cmd "keepjumps norm! gg"
               vim.fn.search(scode)
               vim.cmd "norm! zz"
             else

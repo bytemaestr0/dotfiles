@@ -1,4 +1,4 @@
-local Screen = require('test.screen')
+local Screen = require('nvim-test.screen')
 local helpers = require('test.gs_helpers')
 
 local clear = helpers.clear
@@ -56,6 +56,7 @@ describe('highlights', function()
     cleanup()
     screen:detach()
   end)
+
   it('get set up correctly', function()
     command('set termguicolors')
 
@@ -74,14 +75,12 @@ describe('highlights', function()
 
     expectf(function()
       match_dag({
-        p('Deriving GitSignsAdd from DiffAdd'),
+        p('Deriving GitSignsAdd from ' .. (nvim10 and 'Added' or 'DiffAdd')),
         p('Deriving GitSignsAddLn from DiffAdd'),
         p('Deriving GitSignsAddNr from GitSignsAdd'),
         p('Deriving GitSignsChangeLn from DiffChange'),
         p('Deriving GitSignsChangeNr from GitSignsChange'),
-        -- TODO(lewis6991): huh?
-        nvim10 and p('Deriving GitSignsDelete from Removed')
-          or p('Deriving GitSignsDelete from DiffDelete'),
+        p('Deriving GitSignsDelete from ' .. (nvim10 and 'Removed' or 'DiffDelete')),
         p('Deriving GitSignsDeleteNr from GitSignsDelete'),
       })
     end)

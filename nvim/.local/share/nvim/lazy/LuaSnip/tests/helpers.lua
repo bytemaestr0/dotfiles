@@ -1,9 +1,20 @@
-local helpers = require("test.functional.helpers")(after_each)
+local helpers_ok, helpers = pcall(require, "test.functional.testutil")
+if not helpers_ok then
+	helpers_ok, helpers = pcall(require, "test.functional.helpers")
+end
+
+helpers = helpers()
+
 local exec_lua = helpers.exec_lua
 local exec = helpers.exec
 local assert = require("luassert")
 
-local M = {}
+local M = {
+	exec = exec,
+	exec_lua = exec_lua,
+	clear = helpers.clear,
+	feed = helpers.feed,
+}
 
 function M.jsregexp_it(it, name, fn)
 	for _, version in ipairs({ "005", "006", "luasnip" }) do
@@ -72,6 +83,12 @@ function M.prevent_jsregexp()
 	]])
 end
 
+-- neovim#ec37101abea724286967f973bd3bf73fe432bd0d changes the default-color of visual.
+-- Just set it to the old default so the tests don't have to be changed.
+function M.setup_compat_colors()
+	helpers.exec("hi Visual guifg=NONE guibg=LightGray")
+end
+
 function M.session_setup_luasnip(opts)
 	opts = opts or {}
 	local no_snip_globals = opts.no_snip_globals ~= nil and opts.no_snip_globals
@@ -106,12 +123,21 @@ function M.session_setup_luasnip(opts)
 					end
 				or vim.treesitter.require_language
 
-			-- this is a nop on new versions of neovim, where the lua-parser is shipped by default.
-			ts_lang_add("lua", os.getenv("LUASNIP_SOURCE") .. "/tests/parsers/lua.so")
-
 			ts_lang_add("json", os.getenv("LUASNIP_SOURCE") .. "/tests/parsers/json.so")
 			ts_lang_add("jsonc", os.getenv("LUASNIP_SOURCE") .. "/tests/parsers/jsonc.so")
 		]])
+
+		local version = exec_lua([[ return vim.version() ]])
+		local nvim_07_or_09 = (version.minor == 7 or version.minor == 9)
+			and version.major == 0
+		if nvim_07_or_09 then
+			-- 0.7 and 0.9 need a different parser than master :/
+			-- (actually, master has a lua-parser built-in, so we don't need to
+			-- load one at all in that case :) )
+			exec_lua(
+				[[ts_lang_add("lua", os.getenv("LUASNIP_SOURCE") .. "/tests/parsers/lua_07_09.so")]]
+			)
+		end
 	end
 
 	helpers.exec_lua(
@@ -169,6 +195,8 @@ function M.session_setup_luasnip(opts)
 			k = require("luasnip.nodes.key_indexer").new_key
 		]])
 	end
+
+	M.setup_compat_colors()
 end
 
 function M.static_docstring_test(snip_str, static, docstring)

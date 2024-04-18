@@ -42,16 +42,16 @@ local item_kinds = {
   CmpItemKindTypeParameter = { fg = base16.base08 },
   CmpItemKindCopilot = { fg = colors.green },
   CmpItemKindCodeium = { fg = colors.vibrant_green },
-  CmpItemKindTabNine = {fg = colors.baby_pink },
+  CmpItemKindTabNine = { fg = colors.baby_pink },
 }
 
-local cmp_ui = require("core.utils").load_config().ui.cmp
+local cmp_ui = require("nvconfig").ui.cmp
 
 -- custom highlights per style!
 local styles = {
 
   default = {
-    CmpBorder = { fg = colors[cmp_ui.border_color] },
+    CmpBorder = { fg = colors.grey_fg },
   },
 
   atom = {
@@ -116,10 +116,5 @@ end
 
 highlights = vim.tbl_deep_extend("force", highlights, styles[cmp_ui.style] or {})
 highlights = vim.tbl_deep_extend("force", highlights, item_kinds)
-
-if cmp_ui.selected_item_bg == "simple" then
-  highlights.CmpSel =
-    { fg = colors.white, bg = (highlights.CmpPmenu.bg == colors.black2 and colors.grey or colors.one_bg3), bold = true }
-end
 
 return highlights

@@ -1,5 +1,89 @@
 # Changelog
 
+## [10.20.3](https://github.com/folke/lazy.nvim/compare/v10.20.2...v10.20.3) (2024-03-28)
+
+
+### Bug Fixes
+
+* **ui:** disable backdrop when Neovim is transparent ([0ccf031](https://github.com/folke/lazy.nvim/commit/0ccf0312270d2d976ec551a9034bf05720f2486b))
+
+## [10.20.2](https://github.com/folke/lazy.nvim/compare/v10.20.1...v10.20.2) (2024-03-27)
+
+
+### Bug Fixes
+
+* **ui:** only enable backdrop when guicolors is set. Fixes [#1387](https://github.com/folke/lazy.nvim/issues/1387) ([d37a76b](https://github.com/folke/lazy.nvim/commit/d37a76b87137c777f3d778ed03729d7f332a85f0))
+* **ui:** special handling for floats closed before VimEnter. Seems that WinClosed events dont execute before that. Fixes [#1390](https://github.com/folke/lazy.nvim/issues/1390) ([eefb897](https://github.com/folke/lazy.nvim/commit/eefb8974d6a092da6e1631855e4288499b651fdd))
+
+## [10.20.1](https://github.com/folke/lazy.nvim/compare/v10.20.0...v10.20.1) (2024-03-26)
+
+
+### Bug Fixes
+
+* **ui:** properly cleanup on `:quit`. Fixes [#1385](https://github.com/folke/lazy.nvim/issues/1385) ([79e2e85](https://github.com/folke/lazy.nvim/commit/79e2e8593410f199b85f5d61a83704a16169282f))
+
+## [10.20.0](https://github.com/folke/lazy.nvim/compare/v10.19.0...v10.20.0) (2024-03-26)
+
+
+### Features
+
+* **ui:** backdrop for the lazy floating window. Can be disabled with `opts.ui.backdrop` ([a6b74f3](https://github.com/folke/lazy.nvim/commit/a6b74f30d5aab79a40d932f449c0aa5d4a0c6934))
+
+
+### Bug Fixes
+
+* **types:** fixed type for `version`. Fixes [#1381](https://github.com/folke/lazy.nvim/issues/1381) ([eade87f](https://github.com/folke/lazy.nvim/commit/eade87fb837d6cdeef94587ce5e8c8dfb9f88920))
+
+## [10.19.0](https://github.com/folke/lazy.nvim/compare/v10.18.3...v10.19.0) (2024-03-22)
+
+
+### Features
+
+* **util:** option to force system app for util.open ([66466a2](https://github.com/folke/lazy.nvim/commit/66466a2594ab0c446193772a68c236c7e4e02ade))
+
+## [10.18.3](https://github.com/folke/lazy.nvim/compare/v10.18.2...v10.18.3) (2024-03-22)
+
+
+### Bug Fixes
+
+* **cache:** vim.loop fallback ([#1375](https://github.com/folke/lazy.nvim/issues/1375)) ([9131ea4](https://github.com/folke/lazy.nvim/commit/9131ea4c4ae59e347716659088a76d9b9ce3b2f5))
+
+## [10.18.2](https://github.com/folke/lazy.nvim/compare/v10.18.1...v10.18.2) (2024-03-22)
+
+
+### Bug Fixes
+
+* **ui:** Add "bot" to dimmed commands list ([#1367](https://github.com/folke/lazy.nvim/issues/1367)) ([b6f7ef8](https://github.com/folke/lazy.nvim/commit/b6f7ef856b36c5edbe9f03e3a8554b97c458c953))
+
+## [10.18.1](https://github.com/folke/lazy.nvim/compare/v10.18.0...v10.18.1) (2024-03-22)
+
+
+### Bug Fixes
+
+* uv shim was not falling back to vim.loop ([#1370](https://github.com/folke/lazy.nvim/issues/1370)) ([61dddae](https://github.com/folke/lazy.nvim/commit/61dddaec58f8594e40e95a8d5069ce7e493089df))
+
+## [10.18.0](https://github.com/folke/lazy.nvim/compare/v10.17.0...v10.18.0) (2024-03-22)
+
+
+### Features
+
+* refactor all vim.loop -&gt; vim.uv and add a shim when needed ([9e157df](https://github.com/folke/lazy.nvim/commit/9e157df077d24654d0cdefe08158cd4f76e85fe8))
+
+## [10.17.0](https://github.com/folke/lazy.nvim/compare/v10.16.0...v10.17.0) (2024-03-07)
+
+
+### Features
+
+* **loader:** warn when maplocalleader is changed after init ([#1326](https://github.com/folke/lazy.nvim/issues/1326)) ([0694651](https://github.com/folke/lazy.nvim/commit/0694651fd37c3645e1683b4f392d4e38e7d2991b))
+
+
+### Bug Fixes
+
+* **manage:** better support for using the default colorscheme during install. See [#1277](https://github.com/folke/lazy.nvim/issues/1277) ([670a6fe](https://github.com/folke/lazy.nvim/commit/670a6fec7f9b03134849e308d87f4dc316875c46))
+* **types:** fix incorrect LuaLS types ([#1339](https://github.com/folke/lazy.nvim/issues/1339)) ([5aea4e7](https://github.com/folke/lazy.nvim/commit/5aea4e7021287d7bcda6f31d7ad234580940be32))
+* **ui:** remove a single space character from home title ([#1309](https://github.com/folke/lazy.nvim/issues/1309)) ([d5c58bb](https://github.com/folke/lazy.nvim/commit/d5c58bb1937f8aee390f206e724ef23b0cc95eb3))
+* update to new treesitter capture groups ([#1294](https://github.com/folke/lazy.nvim/issues/1294)) ([298bed1](https://github.com/folke/lazy.nvim/commit/298bed190e40b67bb1c20c4d5845c2c0c7da450f))
+
 ## [10.16.0](https://github.com/folke/lazy.nvim/compare/v10.15.1...v10.16.0) (2024-01-21)
 
 

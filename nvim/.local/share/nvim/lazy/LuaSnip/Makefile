@@ -46,8 +46,8 @@ JSREGEXP005_PATH=deps/jsregexp005
 jsregexp:
 	git submodule init
 	git submodule update
-	make "INCLUDE_DIR=-I'$(shell pwd)/deps/lua51_include/'" LDLIBS="${LUA_LDLIBS}" -C "${JSREGEXP_PATH}"
-	make "INCLUDE_DIR=-I'$(shell pwd)/deps/lua51_include/'" LDLIBS="${LUA_LDLIBS}" -C "${JSREGEXP005_PATH}"
+	$(MAKE) "CC=$(CC)" "INCLUDE_DIR=-I'$(shell pwd)/deps/lua51_include/'" LDLIBS="${LUA_LDLIBS}" -C "${JSREGEXP_PATH}"
+	$(MAKE) "CC=$(CC)" "INCLUDE_DIR=-I'$(shell pwd)/deps/lua51_include/'" LDLIBS="${LUA_LDLIBS}" -C "${JSREGEXP005_PATH}"
 
 install_jsregexp: jsregexp
 	# remove old binary.
@@ -60,9 +60,9 @@ install_jsregexp: jsregexp
 
 uninstall_jsregexp:
 	# also remove binaries of older version.
-	rm "$(shell pwd)/lua/luasnip-jsregexp.so"
-	rm "$(shell pwd)/lua/deps/luasnip-jsregexp.so"
-	rm "$(shell pwd)/lua/luasnip-jsregexp.lua"
+	rm -f "$(shell pwd)/lua/luasnip-jsregexp.so"
+	rm -f "$(shell pwd)/deps/luasnip-jsregexp.so"
+	rm -f "$(shell pwd)/lua/luasnip-jsregexp.lua"
 
 TEST_07?=true
 TEST_09?=true
@@ -79,6 +79,6 @@ test: nvim install_jsregexp
 	export TEST_FILE=$(realpath ${TEST_FILE}); \
 	export BUSTED_ARGS=--lpath=$(shell pwd)/tests/?.lua; \
 	set -e; \
-	if ${TEST_07}; then make -C ${NVIM_0.7_PATH} functionaltest DEPS_CMAKE_FLAGS=-DUSE_BUNDLED_GPERF=OFF; fi; \
-	if ${TEST_09}; then make -C ${NVIM_0.9_PATH} functionaltest; fi; \
-	if ${TEST_MASTER}; then make -C ${NVIM_MASTER_PATH} functionaltest; fi;
+	if ${TEST_07}; then $(MAKE) -C ${NVIM_0.7_PATH} functionaltest DEPS_CMAKE_FLAGS=-DUSE_BUNDLED_GPERF=OFF; fi; \
+	if ${TEST_09}; then $(MAKE) -C ${NVIM_0.9_PATH} functionaltest; fi; \
+	if ${TEST_MASTER}; then $(MAKE) -C ${NVIM_MASTER_PATH} functionaltest; fi;

@@ -73,6 +73,7 @@ local function default_create_layout(picker)
       local popup_opts = picker:get_window_options(vim.o.columns, line_count)
 
       -- `popup.nvim` massaging so people don't have to remember minheight shenanigans
+      popup_opts.results.focusable = true
       popup_opts.results.minheight = popup_opts.results.height
       popup_opts.results.highlight = "TelescopeResultsNormal"
       popup_opts.results.borderhighlight = "TelescopeResultsBorder"
@@ -81,7 +82,9 @@ local function default_create_layout(picker)
       popup_opts.prompt.highlight = "TelescopePromptNormal"
       popup_opts.prompt.borderhighlight = "TelescopePromptBorder"
       popup_opts.prompt.titlehighlight = "TelescopePromptTitle"
+
       if popup_opts.preview then
+        popup_opts.preview.focusable = true
         popup_opts.preview.minheight = popup_opts.preview.height
         popup_opts.preview.highlight = "TelescopePreviewNormal"
         popup_opts.preview.borderhighlight = "TelescopePreviewBorder"
@@ -165,6 +168,7 @@ local function default_create_layout(picker)
           popup.move(results_win, popup_opts.results)
           popup.move(preview_win, popup_opts.preview)
         else
+          popup_opts.preview.focusable = true
           popup_opts.preview.highlight = "TelescopePreviewNormal"
           popup_opts.preview.borderhighlight = "TelescopePreviewBorder"
           popup_opts.preview.titlehighlight = "TelescopePreviewTitle"
@@ -528,8 +532,11 @@ function Picker:find()
   self:close_existing_pickers()
   self:reset_selection()
 
+  self.__original_mousemoveevent = vim.o.mousemoveevent
+  vim.o.mousemoveevent = true
+
   self.original_win_id = a.nvim_get_current_win()
-  self.original_cword = vim.fn.expand "<cword>"
+  _, self.original_cword = pcall(vim.fn.expand, "<cword>")
 
   -- User autocmd run it before create Telescope window
   vim.api.nvim_exec_autocmds("User", { pattern = "TelescopeFindPre" })
@@ -1458,6 +1465,8 @@ function Picker:get_result_completor(results_bufnr, find_id, prompt, status_upda
       local visible_result_rows = vim.api.nvim_win_get_height(self.results_win)
       vim.api.nvim_win_set_cursor(self.results_win, { self.max_results - visible_result_rows, 1 })
       vim.api.nvim_win_set_cursor(self.results_win, { self.max_results, 1 })
+    else
+      vim.api.nvim_win_set_cursor(self.results_win, { 1, 0 })
     end
     self:_on_complete()
   end)
@@ -1582,11 +1591,16 @@ function pickers.on_close_prompt(prompt_bufnr)
           picker.manager = EntryManager:new(picker.max_results, picker.entry_adder, picker.stats)
         end
       end
-      picker.default_text = picker:_get_prompt()
+      local curr_prompt = picker:_get_prompt()
+      picker.default_text = curr_prompt
       picker.cache_picker.selection_row = picker._selection_row
-      picker.cache_picker.cached_prompt = picker:_get_prompt()
-      picker.cache_picker.is_cached = true
-      table.insert(cached_pickers, 1, picker)
+
+      -- Only cache if prompt is not empty or ignore_empty_prompt is false
+      if not picker.cache_picker.ignore_empty_prompt or (curr_prompt and curr_prompt ~= "") then
+        picker.cache_picker.cached_prompt = curr_prompt
+        table.insert(cached_pickers, 1, picker)
+        picker.cache_picker.is_cached = true
+      end
 
       -- release pickers
       if picker.cache_picker.num_pickers > 0 then
@@ -1619,6 +1633,8 @@ function pickers.on_close_prompt(prompt_bufnr)
     buffer = prompt_bufnr,
   }
   picker.close_windows(status)
+
+  vim.o.mousemoveevent = picker.__original_mousemoveevent
 end
 
 function pickers.on_resize_window(prompt_bufnr)

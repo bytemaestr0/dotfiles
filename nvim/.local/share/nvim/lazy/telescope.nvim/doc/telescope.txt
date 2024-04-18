@@ -428,15 +428,19 @@ telescope.setup({opts})                                    *telescope.setup()*
         ('cache_picker.limit_entries`) are cached.
 
         Fields:
-          - num_pickers:      The number of pickers to be cached.
-                              Set to -1 to preserve all pickers of your session.
-                              If passed to a picker, the cached pickers with
-                              indices larger than `cache_picker.num_pickers` will
-                              be cleared.
-                              Default: 1
-          - limit_entries:    The amount of entries that will be saved for each
-                              picker.
-                              Default: 1000
+          - num_pickers:          The number of pickers to be cached.
+                                  Set to -1 to preserve all pickers of your
+                                  session. If passed to a picker, the cached
+                                  pickers with indices larger than
+                                  `cache_picker.num_pickers` will be cleared.
+                                  Default: 1
+          - limit_entries:        The amount of entries that will be saved for
+                                  each picker.
+                                  Default: 1000
+          - ignore_empty_prompt:  If true, the picker will not be cached if
+                                  the prompt is empty (i.e., no text has been
+                                  typed at the time of closing the prompt).
+                                  Default: false
 
 
                                                *telescope.defaults.preview*
@@ -1419,6 +1423,8 @@ builtin.buffers({opts})                          *telescope.builtin.buffers()*
                                             bufnr_a should go first. Runs
                                             after sorting by most recent (if
                                             specified)
+        {select_current}        (boolean)   select current buffer (default:
+                                            false)
 
 
 builtin.colorscheme({opts})                  *telescope.builtin.colorscheme()*
@@ -1429,6 +1435,9 @@ builtin.colorscheme({opts})                  *telescope.builtin.colorscheme()*
         {opts} (table)  options to pass to the picker
 
     Options: ~
+        {colors}         (table)    a list of additional colorschemes to
+                                    explicitly make available to telescope
+                                    (default: {})
         {enable_preview} (boolean)  if true, will preview the selected color
 
 
@@ -2527,6 +2536,31 @@ UTILS                                                          *telescope.utils*
 
 Utilities for writing telescope pickers
 
+utils.path_expand({path})                      *telescope.utils.path_expand()*
+    Hybrid of `vim.fn.expand()` and custom `vim.fs.normalize()`
+
+    Paths starting with '%', '#' or '<' are expanded with `vim.fn.expand()`.
+    Otherwise avoids using `vim.fn.expand()` due to its overly aggressive
+    expansion behavior which can sometimes lead to errors or the creation of
+    non-existent paths when dealing with valid absolute paths.
+
+    Other paths will have '~' and environment variables expanded. Unlike
+    `vim.fs.normalize()`, backslashes are preserved. This has better
+    compatibility with `plenary.path` and also avoids mangling valid Unix paths
+    with literal backslashes.
+
+    Trailing slashes are trimmed. With the exception of root paths. eg. `/` on
+    Unix or `C:\` on Windows
+
+
+
+    Parameters: ~
+        {path} (string)
+
+    Return: ~
+        string
+
+
 utils.transform_path({opts}, {path})        *telescope.utils.transform_path()*
     Transform path is a util function that formats a path based on path_display
     found in `opts` or the default value from config. It is meant to be used in
@@ -2537,9 +2571,9 @@ utils.transform_path({opts}, {path})        *telescope.utils.transform_path()*
 
 
     Parameters: ~
-        {opts} (table)   The opts the users passed into the picker. Might
-                         contains a path_display key
-        {path} (string)  The path that should be formatted
+        {opts} (table)       The opts the users passed into the picker. Might
+                             contains a path_display key
+        {path} (string|nil)  The path that should be formatted
 
     Return: ~
         string: The transformed path ready to be displayed
@@ -3644,6 +3678,8 @@ action_generate.which_key({opts})     *telescope.actions.generate.which_key()*
                                             "TelescopePromptBorder")
         {winblend}               (number)   pseudo-transparency of keymap
                                             hints floating window
+        {zindex}                 (number)   z-index of keymap hints floating
+                                            window (default: 100)
 
 
 

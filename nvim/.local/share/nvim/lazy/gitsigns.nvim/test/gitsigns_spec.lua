@@ -1,6 +1,6 @@
 -- vim: foldnestmax=5 foldminlines=1
 
-local Screen = require('test.screen')
+local Screen = require('nvim-test.screen')
 local helpers = require('test.gs_helpers')
 
 local clear = helpers.clear
@@ -45,7 +45,7 @@ describe('gitsigns (with screen)', function()
     local default_attrs = {
       [1] = { foreground = Screen.colors.DarkBlue, background = Screen.colors.WebGray },
       [2] = { foreground = Screen.colors.NvimDarkCyan },
-      [3] = { background = Screen.colors.LightBlue },
+      [3] = { foreground = Screen.colors.NvimDarkGreen },
       [4] = { foreground = Screen.colors.NvimDarkRed },
       [5] = { foreground = Screen.colors.Brown },
       [6] = { foreground = Screen.colors.Blue1, bold = true },
@@ -60,6 +60,7 @@ describe('gitsigns (with screen)', function()
       command('colorscheme vim')
     else
       default_attrs[2] = { background = Screen.colors.LightMagenta }
+      default_attrs[3] = { background = Screen.colors.LightBlue }
       default_attrs[4] =
         { background = Screen.colors.LightCyan1, bold = true, foreground = Screen.colors.Blue1 }
     end
@@ -106,7 +107,6 @@ describe('gitsigns (with screen)', function()
       ),
       'watch_gitdir(1): Watching git dir',
       p('run_job: git .* show :0:dummy.txt'),
-      'update(1): updates: 1, jobs: 6',
     })
 
     check({
@@ -274,6 +274,7 @@ describe('gitsigns (with screen)', function()
 
     local function blame_line_ui_test(autocrlf, file_ending)
       setup_test_repo()
+      exec_lua([[vim.g.editorconfig = false]])
 
       git({ 'config', 'core.autocrlf', autocrlf })
       if file_ending == 'dos' then
@@ -292,7 +293,7 @@ describe('gitsigns (with screen)', function()
       check({ signs = {} })
 
       -- Wait until the virtual blame line appears
-      screen:sleep(1000)
+      -- screen:sleep(500)
       -- print(vim.inspect(exec_lua[[return require'gitsigns.cache'.cache[vim.api.nvim_get_current_buf()].compare_text]]))
       -- print(vim.inspect(exec_lua[[return require'gitsigns.util'.buf_lines(vim.api.nvim_get_current_buf())]]))
 
@@ -493,9 +494,6 @@ describe('gitsigns (with screen)', function()
           table.insert(messages, np('run_job: git .* diff .* /tmp/lua_.* /tmp/lua_.*'))
         end
 
-        local jobs = internal_diff and 8 or 9
-        table.insert(messages, n('update(1): updates: 1, jobs: ' .. jobs))
-
         match_debug_messages(messages)
 
         check({
@@ -680,10 +678,10 @@ describe('gitsigns (with screen)', function()
     })
 
     match_debug_messages({
-      'attach(2): attaching is disabled',
-      n('attach(3): attaching is disabled'),
-      n('attach(4): attaching is disabled'),
-      n('attach(5): attaching is disabled'),
+      'attach_autocmd(2): Attaching is disabled',
+      n('attach_autocmd(3): Attaching is disabled'),
+      n('attach_autocmd(4): Attaching is disabled'),
+      n('attach_autocmd(5): Attaching is disabled'),
     })
   end)
 

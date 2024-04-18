@@ -1,7 +1,36 @@
 ## NvChad theme plugin
 
 - This plugin's a whole re-write of Norcalli's plugin.
-- This theme plugin is supposed to be used along with [NvChad](https://github.com/NvChad/NvChad) only
+- It should be used along with [NvChad](https://github.com/NvChad/NvChad) for best experience.
+- Non NvChad users can have the nvconfig module on the path
+
+## Supported Integrations
+
+- Bufferline.nvim
+- Cmp.nvim
+- Codeactionmenu
+- Nvim-dap
+- Nvim-webdevicons
+- Hop.nvim
+- Vim-illuminate
+- Lsp ( diagnostics )
+- Nvim Navic
+- LspSaga
+- Mason.nvim
+- Notify.nvim
+- Nvim-tree
+- Telescope.nvim
+- Rainbow-delimiters.nvim
+- Todo.nvim
+- Nvim-treesitter
+- Lsp Semantic tokens
+- Trouble.nvim 
+- Whichkey.nvim
+
+## Configuration
+
+- Base46 is configured by [nvconfig](https://github.com/NvChad/NvChad/blob/v2.5/lua/nvconfig.lua) in your path. 
+- Read the [themeing docs](https://nvchad.com/docs/config/theming)
 
 ## Highlight command
 
@@ -96,12 +125,20 @@ M.base_16 = {
 }
 
 -- OPTIONAL
--- overriding highlights for this specific theme only 
+-- overriding or adding highlights for this specific theme only 
+-- defaults/treesitter is the filename i.e integration there, 
+
 M.polish_hl = {
-  Comment = {
-    bg = "#ffffff" -- or M.base_30.cyan 
-    italic =  true
-  }
+  defaults = {
+    Comment = {
+      bg = "#ffffff", -- or M.base_30.cyan
+      italic = true,
+    },
+  },
+
+  treesitter = {
+    ["@variable"] = { fg = "#000000" },
+  },
 }
 
 -- set the theme type whether is dark or light
@@ -115,11 +152,11 @@ return M
 
 ## Contribute
 
-- Send PR in the https://github.com/NvChad/base46/tree/v2.0/lua/base46/themes
+- Send PR in the https://github.com/NvChad/base46/tree/v2.5/lua/base46/themes
 
 ### Testing your theme
 
-- Just place your theme file in `custom/themes` folder 
+- Just place your theme file in your `/lua/themes` folder
 - And select the theme with theme switcher or change in chadrc
 
 ## Tips

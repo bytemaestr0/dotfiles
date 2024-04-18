@@ -58,17 +58,10 @@ M.base_16 = {
 M.type = "dark"
 
 M.polish_hl = {
-  Conditional = {
-    fg = M.base_30.yellow,
+  treesitter = {
+    ["@variable.parameter"] = { fg = M.base_30.pink },
+    ["@attribute"] = { fg = M.base_30.purple },
   },
-
-  ["@parameter"] = {
-    fg = M.base_30.pink,
-  },
-
-  ["@attribute"] = {
-    fg = M.base_30.purple
-  }
 }
 
 M = require("base46").override_theme(M, "bearded-arc")

@@ -1,26 +1,28 @@
-[
- (program)
- (fn)
- (lambda)
- (let)
- (each)
- (for)
- (match)
-] @scope
+; TODO: Add tests
+; TODO: Improve queries
+(program) @local.scope
 
-(
-  (list . (symbol) @_special) @scope
-  (#any-of? @_special
-   "while" "if" "when" "do" "collect" "icollect" "accumulate")
-)
+((list
+  .
+  (symbol) @_call) @local.scope
+  (#any-of? @_call
+    "let" "fn" "lambda" "λ" "while" "each" "for" "if" "when" "do" "collect" "icollect" "accumulate"
+    "case" "match"))
 
-(fn name: (symbol) @definition.function
-  (#set! definition.function.scope "parent"))
-(lambda name: (symbol) @definition.function
-  (#set! definition.function.scope "parent"))
+(symbol) @local.reference
 
-; TODO: use @definition.parameter for parameters
-(binding (symbol) @definition.var)
-(for_clause . (symbol) @definition.var)
-
-(symbol) @reference
+(list
+  .
+  (symbol) @_fn
+  (#any-of? @_fn "fn" "lambda" "λ")
+  .
+  [
+    (symbol) @local.definition.function
+    (multi_symbol
+      member: (symbol_fragment) @local.definition.function .)
+  ]
+  (#set! definition.function.scope "parent")
+  .
+  (sequence
+    (symbol)* @local.definition.parameter
+    (#not-contains? @local.definition.parameter "&")))

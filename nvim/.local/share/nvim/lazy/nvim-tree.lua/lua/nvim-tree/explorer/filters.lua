@@ -4,6 +4,7 @@ local marks = require "nvim-tree.marks"
 local M = {
   ignore_list = {},
   exclude_list = {},
+  custom_function = nil,
 }
 
 ---@param path string
@@ -70,9 +71,39 @@ local function dotfile(path)
 end
 
 ---@param path string
----@param bookmarks table<string, boolean> absolute paths bookmarked
-local function bookmark(path, bookmarks)
-  return M.config.filter_no_bookmark and not bookmarks[path]
+---@param path_type string|nil filetype of path
+---@param bookmarks table<string, string|nil> path, filetype table of bookmarked files
+local function bookmark(path, path_type, bookmarks)
+  if not M.config.filter_no_bookmark then
+    return false
+  end
+  -- if bookmark is empty, we should see a empty filetree
+  if next(bookmarks) == nil then
+    return true
+  end
+
+  local mark_parent = utils.path_add_trailing(path)
+  for mark, mark_type in pairs(bookmarks) do
+    if path == mark then
+      return false
+    end
+
+    if path_type == "directory" then
+      -- check if path is mark's parent
+      if vim.fn.stridx(mark, mark_parent) == 0 then
+        return false
+      end
+    end
+    if mark_type == "directory" then
+      -- check if mark is path's parent
+      local path_parent = utils.path_add_trailing(mark)
+      if vim.fn.stridx(path, path_parent) == 0 then
+        return false
+      end
+    end
+  end
+
+  return true
 end
 
 ---@param path string
@@ -83,6 +114,11 @@ local function custom(path)
   end
 
   local basename = utils.path_basename(path)
+
+  -- filter user's custom function
+  if M.custom_function and M.custom_function(path) then
+    return true
+  end
 
   -- filter custom regexes
   local relpath = utils.path_relative(path, vim.loop.cwd())
@@ -120,7 +156,7 @@ function M.prepare(git_status)
   end
 
   for _, node in pairs(marks.get_marks()) do
-    status.bookmarks[node.absolute_path] = true
+    status.bookmarks[node.absolute_path] = node.type
   end
 
   return status
@@ -128,19 +164,29 @@ end
 
 ---Check if the given path should be filtered.
 ---@param path string Absolute path
+---@param fs_stat uv.fs_stat.result|nil fs_stat of file
 ---@param status table from prepare
 ---@return boolean
-function M.should_filter(path, status)
+function M.should_filter(path, fs_stat, status)
+  if not M.config.enable then
+    return false
+  end
+
   -- exclusions override all filters
   if is_excluded(path) then
     return false
   end
 
-  return git(path, status.git_status) or buf(path, status.bufinfo) or dotfile(path) or custom(path) or bookmark(path, status.bookmarks)
+  return git(path, status.git_status)
+    or buf(path, status.bufinfo)
+    or dotfile(path)
+    or custom(path)
+    or bookmark(path, fs_stat and fs_stat.type, status.bookmarks)
 end
 
 function M.setup(opts)
   M.config = {
+    enable = opts.filters.enable,
     filter_custom = true,
     filter_dotfiles = opts.filters.dotfiles,
     filter_git_ignored = opts.filters.git_ignored,
@@ -153,9 +199,13 @@ function M.setup(opts)
   M.exclude_list = opts.filters.exclude
 
   local custom_filter = opts.filters.custom
-  if custom_filter and #custom_filter > 0 then
-    for _, filter_name in pairs(custom_filter) do
-      M.ignore_list[filter_name] = true
+  if type(custom_filter) == "function" then
+    M.custom_function = custom_filter
+  else
+    if custom_filter and #custom_filter > 0 then
+      for _, filter_name in pairs(custom_filter) do
+        M.ignore_list[filter_name] = true
+      end
     end
   end
 end

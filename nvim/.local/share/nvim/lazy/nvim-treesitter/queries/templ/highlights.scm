@@ -12,6 +12,7 @@
 
 (attribute
   name: (attribute_name) @tag.attribute)
+
 (attribute
   value: (quoted_attribute_value) @string)
 
@@ -21,15 +22,17 @@
 ] @string.special
 
 (css_identifier) @function
+
 (css_property
-  name: (css_property_name) @attribute)
+  name: (css_property_name) @property)
+
 (css_property
-  value: (css_property_value) @attribute)
+  value: (css_property_value) @string)
 
 [
   (expression)
   (dynamic_class_attribute_value)
-] @method
+] @function.method
 
 (component_import
   name: (component_identifier) @function)

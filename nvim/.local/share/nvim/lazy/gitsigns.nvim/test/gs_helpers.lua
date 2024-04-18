@@ -1,6 +1,6 @@
-local helpers = require('test.helpers')
+local helpers = require('nvim-test.helpers')
 
-local timeout = 8000
+local timeout = 2000
 
 local M = helpers
 
@@ -262,13 +262,16 @@ function M.setup_gitsigns(config, on_attach)
           return false
         end
       end
-      require('gitsigns').setup(config)
+      _SETUP_DONE = false
+      require('gitsigns').setup(config, function()
+        _SETUP_DONE = true
+      end)
     ]],
     config,
     on_attach
   )
   M.expectf(function()
-    return exec_lua([[return require'gitsigns'._setup_done == true]])
+    return exec_lua([[return _SETUP_DONE]])
   end)
 end
 
