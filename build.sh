@@ -43,7 +43,7 @@ else
 fi
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
    
-$install $autoyes konsole neofetch xclip
+$install $autoyes konsole neofetch xclip kconfig5
 
 sudo cp -r $dotfiles/konsole/. $HOME/
 sudo cp -r $dotfiles/zsh/. $HOME/
