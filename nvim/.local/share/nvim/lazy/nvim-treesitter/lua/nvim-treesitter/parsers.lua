@@ -413,7 +413,7 @@ list.djot = {
 list.dockerfile = {
   install_info = {
     url = "https://github.com/camdencheek/tree-sitter-dockerfile",
-    files = { "src/parser.c" },
+    files = { "src/parser.c", "src/scanner.c" },
   },
   maintainers = { "@camdencheek" },
 }
@@ -547,7 +547,8 @@ list.faust = {
 list.fennel = {
   install_info = {
     url = "https://github.com/alexmozaidze/tree-sitter-fennel",
-    files = { "src/parser.c" },
+    files = { "src/parser.c", "src/scanner.c" },
+    generate_requires_npm = true,
   },
   maintainers = { "@alexmozaidze" },
 }
@@ -1079,6 +1080,14 @@ list.kotlin = {
     files = { "src/parser.c", "src/scanner.c" },
   },
   maintainers = { "@SalBakraa" },
+}
+
+list.koto = {
+  install_info = {
+    url = "https://github.com/koto-lang/tree-sitter-koto",
+    files = { "src/parser.c", "src/scanner.c" },
+  },
+  maintainers = { "@irh" },
 }
 
 list.kusto = {

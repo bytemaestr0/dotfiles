@@ -62,24 +62,19 @@ if [ ! -f "/usr/share/fonts/0xProtoNerdFontMono-Regular.ttf" ]; then
         sudo fc-cache -f -v >/dev/null
         rmdir tempora
         rm 0xProto.zip
+        echo "font is installed, apply it"
 else
-  echo "font is installed, applying"
+  echo "font is installed, apply it"
 fi
 
-if command -v apt &>/dev/null; then
-    kwriteconfig5 --file konsolerc --group 'Appearance' --key 'Font' '0xProtoNerdFontMono-Regular'
-elif command -v pacman &>/dev/null; then
-    kwriteconfig5 --file kdeglobals --group "General" --key "fixed" "0xProto Nerd Font Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
+if [ -d ~/.ssh ]; then
+  sudo chmod -R u=rwX,go=rX ~/ && sudo chown -R $realuser:$realuser ~/
+  sudo chmod -R 600 ~/.ssh 
+  sudo chmod u+x ~/.ssh 
+  sudo chmod a+r ~/.ssh/*.pub
 else
-    echo "neither apt nor pacman found, exiting."
-    exit 1
+  :
 fi
-
-sudo chmod -R u=rwX,go=rX ~/ && sudo chown -R $realuser:$realuser ~/
-sudo chmod -R 600 ~/.ssh 
-sudo chmod u+x ~/.ssh 
-sudo chmod a+r ~/.ssh/*.pub
-
 echo "done."
 
 /bin/zsh

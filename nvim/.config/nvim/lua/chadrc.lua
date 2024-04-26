@@ -3,7 +3,7 @@
 
 ---@type ChadrcConfig
 local M = {}
-
+vim.opt.relativenumber = true -- Enable relative line numbers
 M.ui = {
 	theme = "github_dark",
 
