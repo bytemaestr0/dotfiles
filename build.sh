@@ -7,6 +7,7 @@ if command -v apt &> /dev/null; then
     update="sudo apt update"
     upgrade="sudo apt upgrade"
     install="sudo apt install"
+    remove="sudo apt remove"
     autoyes="-y"
     system="debi"
     sudo apt install -y gh nala
@@ -14,6 +15,7 @@ elif command -v pacman &> /dev/null; then
     update="sudo pacman -Sy"
     upgrade="sudo pacman -Su"
     install="sudo pacman -S"
+    remove="sudo pacman -Runcs"
     autoyes="--noconfirm"
     system="arch"
 else
@@ -23,7 +25,9 @@ fi
 
 $update $autoyes && $upgrade $autoyes
 
-$install $autoyes git zsh
+$install $autoyes neofetch xclip kconfig git zsh kitty
+
+$remove $autoyes konsole xterm
 
 sudo chsh -s /bin/zsh $USER
 
@@ -43,8 +47,6 @@ else
 fi
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
    
-$install $autoyes konsole neofetch xclip kconfig5
-
 sudo cp -r $dotfiles/konsole/. $HOME/
 sudo cp -r $dotfiles/zsh/. $HOME/
 sudo cp -r $dotfiles/nvim/. $HOME/
