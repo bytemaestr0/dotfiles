@@ -25,7 +25,7 @@ fi
 
 $update $autoyes && $upgrade $autoyes
 
-$install $autoyes neofetch xclip kconfig git zsh kitty
+$install $autoyes neofetch xclip kconfig git zsh kitty qbittorrent 
 
 $remove $autoyes konsole xterm
 
