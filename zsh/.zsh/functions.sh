@@ -21,3 +21,8 @@ function killbyname() {
     echo "$pids"
     echo $pids | xargs kill -9
 }
+function zlast() {
+    last_session=$(zellij list-sessions | head -n 1 | sed 's/\x1b\[[0-9;]*m//g' | awk '{print $1}')
+    zellij a $last_session
+}
+
