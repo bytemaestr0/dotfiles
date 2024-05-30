@@ -1,3 +1,4 @@
+export ZSH="$HOME/.oh-my-zsh"
 ZSH_DISABLE_COMPFIX="true"
 ZSH_THEME="custom_endy"
 DISABLE_LS_COLORS="true"
@@ -8,11 +9,10 @@ plugins=(
 	zsh-autosuggestions
 	zsh-syntax-highlighting
 )
-function git_prompt_info() {
-    ref=$(git-branch-name -q -h 12 -b 64) || return
-    echo "${ZSH_THEME_GIT_PROMPT_PREFIX}${ref}${ZSH_THEME_GIT_PROMPT_CLEAN}${ZSH_THEME_GIT_PROMPT_SUFFIX}"
-}
-export ZSH="$HOME/.oh-my-zsh"
+#function git_prompt_info() {
+#    ref=$(git-branch-name -q -h 12 -b 64) || return
+#    echo "${ZSH_THEME_GIT_PROMPT_PREFIX}${ref}${ZSH_THEME_GIT_PROMPT_CLEAN}${ZSH_THEME_GIT_PROMPT_SUFFIX}"
+#}
 export DOTFILES="$HOME/dotfiles"
 export NVCONF="$HOME/.config/nvim/"
 alias python="python3"
@@ -25,5 +25,6 @@ alias py="cd $HOME/pent/python"
 alias zellij="zellij --layout $HOME/.config/zellij/zellij.kdl"
 alias zedit="nvim $HOME/.config/zellij/zellij.kdl"
 alias kedit="nvim $HOME/.config/kitty/kitty.conf"
+alias copy-paste="nvim $HOME/.copyable"
 export PATH=$PATH:/home/elliot/.spicetify
 export QSG_RENDER_LOOP=basic
