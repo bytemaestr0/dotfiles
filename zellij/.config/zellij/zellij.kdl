@@ -11,11 +11,10 @@ layout {
         }
     }
     floating_panes {
-      pane command="/bin/echo" {
+      pane command="bashtop" {
         x 25
         width 154
         height "55%"
-        args "put =map(range(n1, n2), 'printf(''word %d'', v:val)')"
       }
     }
     pane size=2 borderless=true {

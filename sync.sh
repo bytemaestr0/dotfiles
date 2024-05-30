@@ -1,7 +1,10 @@
 #!/bin/bash
 
-source_dir="$HOME/dotfiles"
+source_dir="$(realpath $(dirname $0))"
 dest_dir="$HOME"
+
+echo "Source Directory: $HOME/.zsh"
+echo "Destination Directory:$(realpath $(dirname $0))zsh/.zsh"
 
 compare_directories() {
     local app_dir="$1"
@@ -14,7 +17,7 @@ compare_directories() {
         echo "Source Directory: $config_dir/$app_name"
         echo "Destination Directory: $HOME/.config/$app_name"
         sync_directories "$config_dir/$app_name" "$HOME/.config/$app_name"
-        cp $HOME/.config/plasma-org.kde.plasma.desktop-appletsrc $DOTFILES/plasma/.config/plasma-org.kde.plasma.desktop-appletsrc
+        cp $HOME/.config/plasma-org.kde.plasma.desktop-appletsrc $(realpath $(dirname $0))/plasma/.config/plasma-org.kde.plasma.desktop-appletsrc
     fi  
 
     if [ -d "$local_share_dir/$app_name" ]; then
@@ -33,9 +36,9 @@ sync_directories() {
     local source="$1"
     local dest="$2"
     local temp_diff=$(diff -qr "$source" "$dest")
-
     rsync -a "$dest"/ "$source"
-    cp  $HOME/.zshrc $DOTFILES/zsh/.zshrc
+    cp  $HOME/.zshrc $(realpath $(dirname $0))/zsh/.zshrc
+    cp -R $HOME/.zsh/ $(realpath $(dirname $0))/zsh/
   }
 
 for app_dir in "$source_dir"/*/; do
