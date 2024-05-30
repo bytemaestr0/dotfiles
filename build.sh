@@ -10,7 +10,7 @@ if command -v apt &> /dev/null; then
     remove="sudo apt remove"
     autoyes="-y"
     system="debi"
-    sudo apt install -y gh nala
+    sudo apt install -y github-cli
 elif command -v pacman &> /dev/null; then
     update="sudo pacman -Sy"
     upgrade="sudo pacman -Su"
@@ -25,9 +25,9 @@ fi
 
 $update $autoyes && $upgrade $autoyes
 
-$install $autoyes neofetch xclip kconfig git zsh kitty qbittorrent 
+$install $autoyes neofetch xclip kconfig5 git zsh kitty qbittorrent 
 
-$remove $autoyes konsole xterm
+$remove $autoyes xterm
 
 sudo chsh -s /bin/zsh $USER
 
@@ -69,12 +69,15 @@ if [ ! -f "/usr/share/fonts/0xProtoNerdFontMono-Regular.ttf" ]; then
 else
   echo "font is installed, apply it"
 fi
-
+sudo chmod -R u=rwX,go=rX ~/ && sudo chown -R $realuser:$realuser ~/
 if [ -d ~/.ssh ]; then
-  sudo chmod -R u=rwX,go=rX ~/ && sudo chown -R $realuser:$realuser ~/
-  sudo chmod -R 600 ~/.ssh 
-  sudo chmod u+x ~/.ssh 
-  sudo chmod a+r ~/.ssh/*.pub
+  if [ -f ~/.ssh/* ]; then
+    sudo chmod -R 600 ~/.ssh 
+    sudo chmod u+x ~/.ssh 
+    sudo chmod a+r ~/.ssh/*.pub
+  else
+    :
+  fi
 else
   :
 fi

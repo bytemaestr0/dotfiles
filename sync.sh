@@ -35,7 +35,8 @@ sync_directories() {
     local temp_diff=$(diff -qr "$source" "$dest")
 
     rsync -a "$dest"/ "$source"
-}
+    cp  $HOME/.zshrc $DOTFILES/zsh/.zshrc
+  }
 
 for app_dir in "$source_dir"/*/; do
     compare_directories "$app_dir"
