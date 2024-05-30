@@ -1,7 +1,5 @@
 require "nvchad.mappings"
 
--- add yours here
-
 local map = vim.keymap.set
 vim.api.nvim_set_keymap('n', '<F4>', ':botright split | term python3 %<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-x>', ':bd!<CR>', { noremap = true, silent = true })
