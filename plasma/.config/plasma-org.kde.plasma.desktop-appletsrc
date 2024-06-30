@@ -16,8 +16,8 @@ plugin=org.kde.plasma.folder
 wallpaperplugin=org.kde.image
 
 [Containments][125][ConfigDialog]
-DialogHeight=390
-DialogWidth=520
+DialogHeight=510
+DialogWidth=680
 
 [Containments][125][General]
 ToolBoxButtonState=topcenter
@@ -25,7 +25,6 @@ ToolBoxButtonX=308
 
 [Containments][125][Wallpaper][org.kde.image][General]
 Image=/home/elliot/.local/share/wallpapers/Utterly-Nord/
-PreviewImage=/home/elliot/.local/share/wallpapers/Utterly-Nord/
 SlidePaths=/usr/share/wallpapers/
 
 [Containments][126]
@@ -40,12 +39,12 @@ plugin=org.kde.plasma.folder
 wallpaperplugin=org.kde.image
 
 [Containments][126][ConfigDialog]
-DialogHeight=390
-DialogWidth=520
+DialogHeight=510
+DialogWidth=680
 
 [Containments][126][General]
 ToolBoxButtonState=topcenter
-ToolBoxButtonX=411
+ToolBoxButtonX=308
 
 [Containments][126][Wallpaper][org.kde.image][General]
 Image=/home/elliot/.local/share/wallpapers/Utterly-Nord/
@@ -164,7 +163,7 @@ immutability=1
 plugin=org.kde.plasma.networkmanagement
 
 [Containments][30][Applets][142][Configuration]
-PreloadWeight=70
+PreloadWeight=75
 popupHeight=340
 popupWidth=434
 
@@ -175,7 +174,7 @@ plugin=org.kde.plasma.kickoff
 [Containments][30][Applets][147][Configuration]
 PreloadWeight=100
 popupHeight=502
-popupWidth=677
+popupWidth=676
 
 [Containments][30][Applets][147][Configuration][General]
 favoritesPortedToKAstats=true

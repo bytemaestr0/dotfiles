@@ -25,4 +25,55 @@ function zlast() {
     last_session=$(zellij list-sessions | head -n 1 | sed 's/\x1b\[[0-9;]*m//g' | awk '{print $1}')
     zellij a $last_session
 }
-
+function catall() {
+  for file in *; do
+    if [ -f "$file" ]; then
+        cat "$file"
+    fi
+  done
+}
+function getlindir() {
+  catall | wc -l
+}
+function getwindir() {
+  catall | wc -w
+}
+function getcindir() {
+  catall | wc -c
+}
+function comnl() {
+  sed 's/, /\n/g' "$1" > "$1.tmp" && cat "$1.tmp" && mv "$1.tmp" "$1"
+}
+function datefile() {
+  if [ -z "$1" ]; then
+    echo "Usage: datefile <filename>"
+    return 1
+  fi
+  
+  filename="$1"
+  
+  catall | grep -E '\b[0-9]{4}\b' > "$filename"
+}
+function mkdir() {
+  /bin/mkdir $1 
+  cd $1
+}
+function qemuconv() {
+  if [ -z "$1"]; then
+    echo "Usage: qemuconv <filename>"
+    return 1 
+  fi 
+  reverse=$(echo $1 | rev)
+  extension=$(echo $1 | cut -d'.' -f2)
+  clear
+  if [ $extension = "7z" ]; then
+    7z e $1
+  elif [ $extension = "gzip" ]; then  
+    gzip -d $1 
+  elif [ $extension = "zip" ]; then
+    unzip $1 
+  fi 
+  rm $1 
+  qemu-img convert -f vmdk -O qcow2 "*.vmdk" "${name}.qcow2"
+  rm "*.vmdk"
+}

@@ -11,4 +11,5 @@ alias zedit="nvim $HOME/.config/zellij/zellij.kdl"
 alias kedit="nvim $HOME/.config/kitty/kitty.conf"
 alias copy-paste="nvim $HOME/.copyable"
 alias conv="cofi $HOME/.copyable"
-
+alias editfunc="nvim $ZSHCONF/functions.sh"
+alias editalias="nvim $ZSHCONF/aliases.sh"

@@ -1,9 +1,9 @@
-[23:26:24.891][info] [#0:/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/main.lua:66]: Lua Lsp startup, root: 	/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec
-[23:26:24.891][info] [#0:/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/main.lua:67]: ROOT:	/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec
-[23:26:24.891][info] [#0:/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/main.lua:68]: LOGPATH:	/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/log
-[23:26:24.891][info] [#0:/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/main.lua:69]: METAPATH:	/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/meta
-[23:26:24.891][info] [#0:/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/main.lua:70]: VERSION:	3.7.4
-[23:26:24.924][info] [#0:script/service/service.lua:144]: 
+[00:52:35.395][info] [#0:/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/main.lua:66]: Lua Lsp startup, root: 	/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec
+[00:52:35.395][info] [#0:/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/main.lua:67]: ROOT:	/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec
+[00:52:35.395][info] [#0:/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/main.lua:68]: LOGPATH:	/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/log
+[00:52:35.395][info] [#0:/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/main.lua:69]: METAPATH:	/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/meta
+[00:52:35.395][info] [#0:/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/main.lua:70]: VERSION:	3.7.4
+[00:52:35.421][info] [#0:script/service/service.lua:144]: 
 ========= Medical Examination Report =========
     --------------- Memory ---------------
         Total: 1.336 MB
@@ -25,7 +25,7 @@
         Holdon:   0
         Waiting:  0
 ==============================================
-[23:26:24.928][info] [#0:script/client.lua:657]: Client init	{
+[00:52:35.425][info] [#0:script/client.lua:657]: Client init	{
   capabilities = {
     general = {
       positionEncodings = { "utf-16" }
@@ -205,7 +205,7 @@
     version = "0.10.0-dev"
   },
   initializationOptions = {},
-  processId = 41527,
+  processId = 557833,
   rootPath = "/home/elliot/.config/nvim",
   rootUri = "file:///home/elliot/.config/nvim",
   trace = "off",
@@ -215,7 +215,7 @@
       uri = "file:///home/elliot/.config/nvim"
     } }
 }
-[23:26:24.928][info] [#0:script/language.lua:137]: VSC language: nil
-[23:26:24.928][info] [#0:script/language.lua:138]: LS  language: en-us
-[23:26:24.928][info] [#0:script/workspace/workspace.lua:38]: Workspace init root: 	file:///home/elliot/.config/nvim
-[23:26:24.928][info] [#0:script/workspace/workspace.lua:42]: Log path: 	/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/log/file_home_elliot_.config_nvim.log
+[00:52:35.425][info] [#0:script/language.lua:137]: VSC language: nil
+[00:52:35.425][info] [#0:script/language.lua:138]: LS  language: en-us
+[00:52:35.425][info] [#0:script/workspace/workspace.lua:38]: Workspace init root: 	file:///home/elliot/.config/nvim
+[00:52:35.425][info] [#0:script/workspace/workspace.lua:42]: Log path: 	/home/elliot/.local/share/nvim/mason/packages/lua-language-server/libexec/log/file_home_elliot_.config_nvim.log
