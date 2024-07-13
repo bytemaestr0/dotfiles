@@ -77,3 +77,6 @@ function qemuconv() {
   qemu-img convert -f vmdk -O qcow2 "*.vmdk" "${name}.qcow2"
   rm "*.vmdk"
 }
+function merge_files() {
+  python $HOME/pent/python/merge_files.py
+}

@@ -22,10 +22,16 @@ DialogWidth=680
 [Containments][125][General]
 ToolBoxButtonState=topcenter
 ToolBoxButtonX=308
+positions={"1920x1080":["1"\\,"18"\\,"desktop:/password_dictionary"\\,"0"\\,"0"\\,"desktop:/wifiscript.py"\\,"0"\\,"2"\\,"desktop:/psk-01.cap"\\,"0"\\,"1"\\,"desktop:/nmap.txt"\\,"0"\\,"3"]}
+sortMode=-1
 
 [Containments][125][Wallpaper][org.kde.image][General]
-Image=/home/elliot/.local/share/wallpapers/Utterly-Nord/
+Image=/home/elliot/Pictures/3840x2160.png
+PreviewImage=/home/elliot/Pictures/3840x2160.png
 SlidePaths=/usr/share/wallpapers/
+
+[Containments][125][Wallpaper][org.kde.potd][General]
+Provider=wcpotd
 
 [Containments][126]
 ItemGeometries-1920x1080=
@@ -47,9 +53,12 @@ ToolBoxButtonState=topcenter
 ToolBoxButtonX=308
 
 [Containments][126][Wallpaper][org.kde.image][General]
-Image=/home/elliot/.local/share/wallpapers/Utterly-Nord/
-PreviewImage=/home/elliot/.local/share/wallpapers/Utterly-Nord/
+Image=/home/elliot/Pictures/3840x2160.png
+PreviewImage=/home/elliot/Pictures/3840x2160.png
 SlidePaths=/usr/share/wallpapers/
+
+[Containments][126][Wallpaper][org.kde.potd][General]
+Provider=wcpotd
 
 [Containments][3]
 activityId=
@@ -86,7 +95,7 @@ DialogHeight=390
 DialogWidth=520
 
 [Containments][3][Applets][143][Configuration][General]
-launchers=applications:systemsettings.desktop,applications:kitty.desktop,preferred://filemanager,applications:steam.desktop,applications:firefox.desktop,applications:virt-manager.desktop,applications:org.kde.okular.desktop,applications:spotify.desktop
+launchers=applications:systemsettings.desktop,applications:kitty.desktop,applications:org.qbittorrent.qBittorrent.desktop,applications:discord.desktop,preferred://filemanager,applications:steam.desktop,applications:firefox.desktop,applications:virt-manager.desktop,applications:org.kde.okular.desktop,applications:spotify.desktop
 middleClickAction=ToggleMinimized
 showOnlyCurrentScreen=true
 
@@ -104,11 +113,12 @@ immutability=1
 plugin=org.kde.plasma.volume
 
 [Containments][3][Applets][145][Configuration]
-PreloadWeight=55
+PreloadWeight=65
 popupHeight=273
 popupWidth=312
 
 [Containments][3][Applets][145][Configuration][General]
+currentTab=streams
 migrated=true
 
 [Containments][3][Applets][146]
@@ -155,7 +165,7 @@ DialogHeight=390
 DialogWidth=520
 
 [Containments][30][Applets][141][Configuration][General]
-launchers=applications:systemsettings.desktop,applications:kitty.desktop,preferred://filemanager,applications:steam.desktop,applications:firefox.desktop,applications:virt-manager.desktop,applications:org.kde.okular.desktop,applications:spotify.desktop
+launchers=applications:systemsettings.desktop,applications:kitty.desktop,applications:org.qbittorrent.qBittorrent.desktop,applications:discord.desktop,preferred://filemanager,applications:steam.desktop,applications:firefox.desktop,applications:virt-manager.desktop,applications:org.kde.okular.desktop,applications:spotify.desktop
 showOnlyCurrentScreen=true
 
 [Containments][30][Applets][142]
@@ -174,7 +184,11 @@ plugin=org.kde.plasma.kickoff
 [Containments][30][Applets][147][Configuration]
 PreloadWeight=100
 popupHeight=502
-popupWidth=676
+popupWidth=677
+
+[Containments][30][Applets][147][Configuration][ConfigDialog]
+DialogHeight=510
+DialogWidth=680
 
 [Containments][30][Applets][147][Configuration][General]
 favoritesPortedToKAstats=true
@@ -597,4 +611,4 @@ show_requestReboot=true
 
 [ScreenMapping]
 itemsOnDisabledScreens=
-screenMapping=
+screenMapping=desktop:/password_dictionary,0,2476fe9b-6a64-4aa8-9575-dbee779863fe,desktop:/psk-01.cap,0,2476fe9b-6a64-4aa8-9575-dbee779863fe,desktop:/wifiscript.py,0,2476fe9b-6a64-4aa8-9575-dbee779863fe,desktop:/nmap.txt,0,2476fe9b-6a64-4aa8-9575-dbee779863fe
