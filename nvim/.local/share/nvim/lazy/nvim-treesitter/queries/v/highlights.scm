@@ -1,3 +1,5 @@
+(shebang) @keyword.directive
+
 ; Includes
 [
   "import"
@@ -10,15 +12,18 @@
   "assert"
   "const"
   "defer"
-  "enum"
   "goto"
-  "interface"
-  "struct"
   "sql"
-  "type"
-  "union"
   "unsafe"
 ] @keyword
+
+[
+  "enum"
+  "union"
+  "struct"
+  "interface"
+  "type"
+] @keyword.type
 
 [
   "as"
@@ -287,6 +292,7 @@
 
 (_
   (line_comment)+ @comment.documentation
+  .
   [
     (function_declaration)
     (type_declaration)

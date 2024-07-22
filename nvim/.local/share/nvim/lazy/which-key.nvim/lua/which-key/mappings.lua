@@ -1,231 +1,305 @@
+local Config = require("which-key.config")
 local Util = require("which-key.util")
 
 local M = {}
 
-local function lookup(...)
-  local ret = {}
-  for _, t in ipairs({ ... }) do
-    for _, v in ipairs(t) do
-      ret[v] = v
-    end
-  end
-  return ret
-end
+M.VERSION = 2
+M.notifs = {} ---@type {msg:string, level:number, spec?:wk.Spec}[]
 
-local mapargs = {
-  "noremap",
-  "desc",
-  "expr",
-  "silent",
-  "nowait",
-  "script",
-  "unique",
-  "callback",
-  "replace_keycodes", -- TODO: add config setting for default value
+---@class wk.Field
+---@field transform? string|(fun(value: any, parent:table): (value:any, key:string?))
+---@field inherit? boolean
+---@field deprecated? boolean
+
+---@class wk.Parse
+---@field version? number
+---@field create? boolean
+---@field notify? boolean
+
+M.notify = true
+
+---@type table<string, wk.Field>
+M.fields = {
+  -- map args
+  rhs = {},
+  lhs = {},
+  buffer = { inherit = true },
+  callback = { transform = "rhs" },
+  desc = {},
+  expr = { inherit = true },
+  mode = { inherit = true },
+  noremap = {
+    transform = function(value)
+      return not value, "remap"
+    end,
+  },
+  nowait = { inherit = true },
+  remap = { inherit = true },
+  replace_keycodes = { inherit = true },
+  script = {},
+  silent = { inherit = true },
+  unique = { inherit = true },
+  -- wk args
+  plugin = {},
+  group = {},
+  hidden = { inherit = true },
+  cond = { inherit = true },
+  preset = { inherit = true },
+  icon = { inherit = true },
+  -- deprecated
+  name = { transform = "group", deprecated = true },
+  prefix = { inherit = true, deprecated = true },
+  cmd = { transform = "rhs", deprecated = true },
 }
-local wkargs = {
-  "prefix",
-  "mode",
-  "plugin",
-  "buffer",
-  "remap",
-  "cmd",
-  "name",
-  "group",
-  "preset",
-  "cond",
-}
-local transargs = lookup({
-  "noremap",
-  "expr",
-  "silent",
-  "nowait",
-  "script",
-  "unique",
-  "prefix",
-  "mode",
-  "buffer",
-  "preset",
-  "replace_keycodes",
-})
-local args = lookup(mapargs, wkargs)
 
-function M.child_opts(opts)
-  local ret = {}
-  for k, v in pairs(opts) do
-    if transargs[k] then
-      ret[k] = v
-    end
-  end
-  return ret
+---@param msg string
+---@param spec? wk.Spec
+function M.error(msg, spec)
+  M.log(msg, vim.log.levels.ERROR, spec)
 end
 
-function M._process(value, opts)
-  local list = {}
-  local children = {}
-  for k, v in pairs(value) do
-    if type(k) == "number" then
-      if type(v) == "table" then
-        -- nested child, without key
-        table.insert(children, v)
-      else
-        -- list value
-        table.insert(list, v)
-      end
-    elseif args[k] then
-      -- option
-      opts[k] = v
-    else
-      -- nested child, with key
-      children[k] = v
-    end
-  end
-  return list, children
+---@param msg string
+---@param spec? wk.Spec
+function M.warn(msg, spec)
+  M.log(msg, vim.log.levels.WARN, spec)
 end
 
-function M._parse(value, mappings, opts)
-  if type(value) ~= "table" then
-    value = { value }
+---@param msg string
+---@param level number
+---@param spec? wk.Spec
+function M.log(msg, level, spec)
+  if not M.notify then
+    return
   end
-
-  local list, children = M._process(value, opts)
-
-  if opts.plugin then
-    opts.group = true
-  end
-  if opts.name then
-    -- remove + from group names
-    opts.name = opts.name and opts.name:gsub("^%+", "")
-    opts.group = true
-  end
-
-  -- fix remap
-  if opts.remap then
-    opts.noremap = not opts.remap
-    opts.remap = nil
-  end
-
-  -- fix buffer
-  if opts.buffer == 0 then
-    opts.buffer = vim.api.nvim_get_current_buf()
-  end
-
-  if opts.cond ~= nil then
-    if type(opts.cond) == "function" then
-      if not opts.cond() then
-        return
-      end
-    elseif not opts.cond then
-      return
-    end
-  end
-
-  -- process any array child mappings
-  for k, v in pairs(children) do
-    local o = M.child_opts(opts)
-    if type(k) == "string" then
-      o.prefix = (o.prefix or "") .. k
-    end
-    M._try_parse(v, mappings, o)
-  end
-
-  -- { desc }
-  if #list == 1 then
-    if type(list[1]) ~= "string" then
-      error("Invalid mapping for " .. vim.inspect({ value = value, opts = opts }))
-    end
-    opts.desc = list[1]
-  -- { cmd, desc }
-  elseif #list == 2 then
-    -- desc
-    assert(type(list[2]) == "string")
-    opts.desc = list[2]
-
-    -- cmd
-    if type(list[1]) == "string" then
-      opts.cmd = list[1]
-    elseif type(list[1]) == "function" then
-      opts.cmd = ""
-      opts.callback = list[1]
-    else
-      error("Incorrect mapping " .. vim.inspect(list))
-    end
-  elseif #list > 2 then
-    error("Incorrect mapping " .. vim.inspect(list))
-  end
-
-  if opts.desc or opts.group then
-    if type(opts.mode) == "table" then
-      for _, mode in pairs(opts.mode) do
-        local mode_opts = vim.deepcopy(opts)
-        mode_opts.mode = mode
-        table.insert(mappings, mode_opts)
-      end
-    else
-      table.insert(mappings, opts)
-    end
+  M.notifs[#M.notifs + 1] = { msg = msg, level = level, spec = spec }
+  if Config.notify then
+    Util.warn({
+      "There were issues reported with your **which-key** mappings.",
+      "Use `:checkhealth which-key` to find out more.",
+    }, { once = true })
   end
 end
 
----@return Mapping
-function M.to_mapping(mapping)
-  mapping.silent = mapping.silent ~= false
-  mapping.noremap = mapping.noremap ~= false
-  if mapping.cmd and mapping.cmd:lower():find("^<plug>") then
-    mapping.noremap = false
-  end
-
-  mapping.buf = mapping.buffer
-  mapping.buffer = nil
-
-  mapping.mode = mapping.mode or "n"
-  mapping.label = mapping.desc or mapping.name
-  mapping.keys = Util.parse_keys(mapping.prefix or "")
-
-  local opts = {}
-  for _, o in ipairs(mapargs) do
-    opts[o] = mapping[o]
-    mapping[o] = nil
-  end
-
-  if vim.fn.has("nvim-0.7.0") == 0 then
-    opts.replace_keycodes = nil
-
-    -- Neovim < 0.7.0 doesn't support descriptions
-    opts.desc = nil
-
-    -- use lua functions proxy for Neovim < 0.7.0
-    if opts.callback then
-      local functions = require("which-key.keys").functions
-      table.insert(functions, opts.callback)
-      if opts.expr then
-        opts.cmd = string.format([[luaeval('require("which-key").execute(%d)')]], #functions)
-      else
-        opts.cmd = string.format([[<cmd>lua require("which-key").execute(%d)<cr>]], #functions)
-      end
-      opts.callback = nil
+---@param spec wk.Spec
+---@param field string|number
+---@param types string|string[]
+function M.expect(spec, field, types)
+  types = type(types) == "string" and { types } or types
+  local ok = false
+  for _, t in ipairs(types) do
+    if type(spec[field]) == t then
+      ok = true
+      break
     end
   end
-
-  mapping.opts = opts
-  return mapping
-end
-
-function M._try_parse(value, mappings, opts)
-  local ok, err = pcall(M._parse, value, mappings, opts)
   if not ok then
-    Util.error(err)
+    M.error("Expected `" .. field .. "` to be " .. table.concat(types, ", "), spec)
+  end
+  return ok
+end
+
+---@param spec wk.Spec
+---@param ret? wk.Mapping[]
+---@param opts? wk.Parse
+function M._parse(spec, ret, opts)
+  opts = opts or {}
+  opts.version = opts.version or M.VERSION
+  if spec.version then
+    opts.version = spec.version
+    spec.version = nil
+  end
+
+  if ret == nil and opts.version ~= M.VERSION then
+    M.warn(
+      "You're using an old version of the which-key spec.\n"
+        .. "Your mappings will work, but it's recommended to update them to the new version.\n"
+        .. "Please check the docs and suggested spec below for more info.\nMappings",
+      vim.deepcopy(spec)
+    )
+  end
+
+  ret = ret or {}
+
+  spec = type(spec) == "string" and { desc = spec } or spec
+
+  ---@type wk.Mapping
+  local mapping = {}
+
+  ---@type wk.Spec[]
+  local children = {}
+
+  local keys = vim.tbl_keys(spec)
+
+  table.sort(keys, function(a, b)
+    local ta, tb = type(a), type(b)
+    if type(a) == type(b) then
+      return a < b
+    end
+    return ta < tb
+  end)
+
+  -- process fields
+  for _, k in ipairs(keys) do
+    local v = spec[k]
+    local field = M.fields[k] ---@type wk.Field?
+    if field then
+      if type(field.transform) == "string" then
+        k = field.transform --[[@as string]]
+      elseif type(field.transform) == "function" then
+        local vv, kk = field.transform(v, spec)
+        v, k = vv, (kk or k)
+      end
+      mapping[k] = v
+    elseif type(k) == "string" then
+      if opts.version == 1 then
+        if M.expect(spec, k, { "string", "table" }) then
+          if type(v) == "string" then
+            table.insert(children, { prefix = (spec.prefix or "") .. k, desc = v })
+          elseif type(v) == "table" then
+            v.prefix = (spec.prefix or "") .. k
+            table.insert(children, v)
+          end
+        end
+      else
+        M.error("Invalid field `" .. k .. "`", spec)
+      end
+    elseif type(k) == "number" and type(v) == "table" then
+      if opts.version == 1 then
+        v.prefix = spec.prefix or ""
+      end
+      table.insert(children, v)
+      spec[k] = nil
+    end
+  end
+
+  local count = #spec
+
+  -- process mapping
+  if opts.version == M.VERSION then
+    if count == 1 then
+      if M.expect(spec, 1, "string") then
+        mapping.lhs = spec[1] --[[@as string]]
+      end
+    elseif count == 2 then
+      if M.expect(spec, 1, "string") and M.expect(spec, 2, { "string", "function" }) then
+        mapping.lhs = spec[1] --[[@as string]]
+        mapping.rhs = spec[2] --[[@as string]]
+      end
+    elseif count > 2 then
+      M.error("expected 1 or 2 elements, got " .. count, spec)
+    end
+  elseif opts.version == 1 then
+    if mapping.expr and mapping.replace_keycodes == nil then
+      mapping.replace_keycodes = false
+    end
+    if count == 1 then
+      if M.expect(spec, 1, "string") then
+        if mapping.desc then
+          M.warn("overwriting desc", spec)
+        end
+        mapping.desc = spec[1] --[[@as string]]
+      end
+    elseif count == 2 then
+      if M.expect(spec, 1, { "string", "function" }) and M.expect(spec, 2, "string") then
+        if mapping.desc then
+          M.warn("overwriting desc", spec)
+        end
+        mapping.rhs = spec[1] --[[@as string]]
+        mapping.desc = spec[2] --[[@as string]]
+      end
+    elseif count > 2 then
+      M.error("expected 1 or 2 elements, got " .. count, spec)
+    end
+  end
+
+  -- add mapping
+  M.add(mapping, ret)
+
+  -- process children
+  for _, child in ipairs(children) do
+    for k, v in pairs(mapping) do
+      if M.fields[k] and M.fields[k].inherit and child[k] == nil then
+        child[k] = v
+      end
+    end
+    M._parse(child, ret, opts)
+  end
+
+  return ret
+end
+
+---@param mapping wk.Spec
+---@param ret wk.Mapping[]
+function M.add(mapping, ret)
+  if mapping.cond == false or ((type(mapping.cond) == "function") and not mapping.cond()) then
+    return
+  end
+  ---@cast mapping wk.Mapping|wk.Spec
+  mapping.cond = nil
+  if mapping.desc == "which_key_ignore" then
+    mapping.hidden = true
+    mapping.desc = nil
+  end
+  if type(mapping.group) == "string" then
+    mapping.desc = mapping.group --[[@as string]]
+    mapping.group = true
+  end
+  if mapping.plugin then
+    mapping.group = true
+  end
+  if mapping.group and mapping.desc then
+    mapping.desc = mapping.desc:gsub("^%+", "")
+  end
+  if mapping.buffer == 0 or mapping.buffer == true then
+    mapping.buffer = vim.api.nvim_get_current_buf()
+  end
+  if mapping.rhs then
+    mapping.silent = mapping.silent ~= false
+  end
+  mapping.lhs = mapping.lhs or mapping.prefix or ""
+  mapping.prefix = nil
+
+  if mapping.desc or mapping.group or mapping.hidden then
+    local modes = mapping.mode or { "n" } --[[@as string|string[] ]]
+    modes = type(modes) == "string" and vim.split(modes, "") or modes
+    assert(type(modes) == "table", "Invalid mode " .. vim.inspect(modes))
+    for _, mode in ipairs(modes) do
+      local m = vim.deepcopy(mapping)
+      m.mode = mode
+      table.insert(ret, m)
+    end
   end
 end
 
----@return Mapping[]
-function M.parse(mappings, opts)
+---@param mapping wk.Mapping
+function M.create(mapping)
+  assert(mapping.lhs, "Missing lhs")
+  assert(mapping.mode, "Missing mode")
+  assert(mapping.rhs, "Missing rhs")
+  local valid =
+    { "remap", "noremap", "buffer", "silent", "nowait", "expr", "unique", "script", "desc", "replace_keycodes" }
+  local opts = {} ---@type vim.keymap.set.Opts
+  for _, k in ipairs(valid) do
+    if mapping[k] ~= nil then
+      opts[k] = mapping[k]
+    end
+  end
+  vim.keymap.set(mapping.mode, mapping.lhs, mapping.rhs, opts)
+end
+
+---@param spec wk.Spec
+---@param opts? wk.Parse
+function M.parse(spec, opts)
   opts = opts or {}
-  local ret = {}
-  M._try_parse(mappings, ret, opts)
-  return vim.tbl_map(function(m)
-    return M.to_mapping(m)
-  end, ret)
+  M.notify = opts.notify ~= false
+  local ret = M._parse(spec, nil, opts)
+  M.notify = true
+  for _, m in ipairs(ret) do
+    if m.rhs and opts.create then
+      M.create(m)
+    end
+  end
+  return ret
 end
 
 return M

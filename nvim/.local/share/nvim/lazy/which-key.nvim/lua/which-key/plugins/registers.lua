@@ -1,4 +1,5 @@
----@type Plugin
+---@diagnostic disable: missing-fields, inject-field
+---@type wk.Plugin
 local M = {}
 
 M.name = "registers"
@@ -10,8 +11,6 @@ M.actions = {
   { trigger = "<c-r>", mode = "i" },
   { trigger = "<c-r>", mode = "c" },
 }
-
-function M.setup(_wk, _config, options) end
 
 M.registers = '*+"-:.%/#=_abcdefghijklmnopqrstuvwxyz0123456789'
 
@@ -30,20 +29,33 @@ local labels = {
   ["/"] = "last search pattern",
 }
 
----@type Plugin
----@return PluginItem[]
-function M.run(_trigger, _mode, _buf)
-  local items = {}
+M.replace = {
+  ["<Space>"] = " ",
+  ["<lt>"] = "<",
+  ["<NL>"] = "\n",
+  ["\r"] = "",
+}
+
+function M.expand()
+  local items = {} ---@type wk.Plugin.item[]
+
+  local is_osc52 = vim.g.clipboard and vim.g.clipboard.name == "OSC 52"
 
   for i = 1, #M.registers, 1 do
     local key = M.registers:sub(i, i)
-    local ok, value = pcall(vim.fn.getreg, key, 1)
-    if not ok then
-      value = ""
+    local value = ""
+    if is_osc52 and vim.tbl_contains({ "+", "*" }, key) then
+      value = "OSC 52 detected, register not checked to maintain compatibility"
+    else
+      local ok, reg_value = pcall(vim.fn.getreg, key, 1)
+      value = ok and reg_value or ""
     end
-
     if value ~= "" then
-      table.insert(items, { key = key, label = labels[key] or "", value = value })
+      value = vim.fn.keytrans(value)
+      for k, v in pairs(M.replace) do
+        value = value:gsub(k, v)
+      end
+      table.insert(items, { key = key, desc = labels[key] or "", value = value })
     end
   end
   return items

@@ -49,8 +49,8 @@ M.close_buffer = function(bufnr)
     local curBufIndex = buf_index(bufnr)
     local bufhidden = vim.bo.bufhidden
 
-    -- force close floating wins
-    if bufhidden == "wipe" then
+    -- force close floating wins or nonbuflisted
+    if (not vim.bo[bufnr].buflisted) or api.nvim_win_get_config(0).zindex then
       vim.cmd "bw"
       return
 
@@ -63,7 +63,7 @@ M.close_buffer = function(bufnr)
     elseif not vim.bo.buflisted then
       local tmpbufnr = vim.t.bufs[1]
 
-      if vim.g.nv_previous_buf and vim.api.nvim_buf_is_valid(vim.g.nv_previous_buf) then
+      if vim.g.nv_previous_buf and api.nvim_buf_is_valid(vim.g.nv_previous_buf) then
         tmpbufnr = vim.g.nv_previous_buf
       end
 
@@ -82,39 +82,24 @@ M.close_buffer = function(bufnr)
 end
 
 -- closes tab + all of its buffers
-M.closeAllBufs = function(action)
+M.closeAllBufs = function(include_cur_buf)
   local bufs = vim.t.bufs
 
-  if action == "closeTab" then
-    vim.cmd "tabclose"
+  if not include_cur_buf then
+    table.remove(bufs, buf_index(cur_buf()))
   end
 
   for _, buf in ipairs(bufs) do
     M.close_buffer(buf)
   end
-
-  if action ~= "closeTab" then
-    vim.cmd "enew"
-  end
-end
-
--- closes all bufs except current one
-M.closeOtherBufs = function()
-  for _, buf in ipairs(vim.t.bufs) do
-    if buf ~= cur_buf() then
-      vim.api.nvim_buf_delete(buf, {})
-    end
-  end
-
-  vim.cmd "redrawtabline"
 end
 
 -- closes all other buffers right or left
 M.closeBufs_at_direction = function(x)
-  local bufindex = buf_index(cur_buf())
+  local buf_i = buf_index(cur_buf())
 
   for i, bufnr in ipairs(vim.t.bufs) do
-    if (x == "left" and i < bufindex) or (x == "right" and i > bufindex) then
+    if (x == "left" and i < buf_i) or (x == "right" and i > buf_i) then
       M.close_buffer(bufnr)
     end
   end

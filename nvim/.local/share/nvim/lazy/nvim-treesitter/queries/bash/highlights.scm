@@ -93,12 +93,13 @@
 [
   "declare"
   "typeset"
-  "export"
   "readonly"
   "local"
   "unset"
   "unsetenv"
 ] @keyword
+
+"export" @keyword.import
 
 "function" @keyword.function
 
@@ -181,6 +182,12 @@
       (word) @variable.parameter)
   ])
 
+(declaration_command
+  (word) @variable.parameter)
+
+(unset_command
+  (word) @variable.parameter)
+
 (number) @number
 
 ((word) @number
@@ -228,5 +235,5 @@
 
 ((program
   .
-  (comment) @keyword.directive)
+  (comment) @keyword.directive @nospell)
   (#lua-match? @keyword.directive "^#!/"))

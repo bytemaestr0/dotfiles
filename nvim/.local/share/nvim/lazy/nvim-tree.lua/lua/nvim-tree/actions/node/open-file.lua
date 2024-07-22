@@ -26,14 +26,20 @@ local function usable_win_ids()
   return vim.tbl_filter(function(id)
     local bufid = vim.api.nvim_win_get_buf(id)
     for option, v in pairs(M.window_picker.exclude) do
-      local ok, option_value = pcall(vim.api.nvim_buf_get_option, bufid, option)
+      local ok, option_value
+      if vim.fn.has "nvim-0.10" == 1 then
+        ok, option_value = pcall(vim.api.nvim_get_option_value, option, { buf = bufid })
+      else
+        ok, option_value = pcall(vim.api.nvim_buf_get_option, bufid, option) ---@diagnostic disable-line: deprecated
+      end
+
       if ok and vim.tbl_contains(v, option_value) then
         return false
       end
     end
 
     local win_config = vim.api.nvim_win_get_config(id)
-    return id ~= tree_winid and win_config.focusable and not win_config.external
+    return id ~= tree_winid and win_config.focusable and not win_config.external or false
   end, win_ids)
 end
 
@@ -83,8 +89,15 @@ local function pick_win_id()
 
   if laststatus == 3 then
     for _, win_id in ipairs(not_selectable) do
-      local ok_status, statusline = pcall(vim.api.nvim_win_get_option, win_id, "statusline")
-      local ok_hl, winhl = pcall(vim.api.nvim_win_get_option, win_id, "winhl")
+      local ok_status, statusline, ok_hl, winhl
+
+      if vim.fn.has "nvim-0.10" == 1 then
+        ok_status, statusline = pcall(vim.api.nvim_get_option_value, "statusline", { win = win_id })
+        ok_hl, winhl = pcall(vim.api.nvim_get_option_value, "winhl", { win = win_id })
+      else
+        ok_status, statusline = pcall(vim.api.nvim_win_get_option, win_id, "statusline") ---@diagnostic disable-line: deprecated
+        ok_hl, winhl = pcall(vim.api.nvim_win_get_option, win_id, "winhl") ---@diagnostic disable-line: deprecated
+      end
 
       win_opts[win_id] = {
         statusline = ok_status and statusline or "",
@@ -92,15 +105,26 @@ local function pick_win_id()
       }
 
       -- Clear statusline for windows not selectable
-      vim.api.nvim_win_set_option(win_id, "statusline", " ")
+      if vim.fn.has "nvim-0.10" == 1 then
+        vim.api.nvim_set_option_value("statusline", " ", { win = win_id })
+      else
+        vim.api.nvim_win_set_option(win_id, "statusline", " ") ---@diagnostic disable-line: deprecated
+      end
     end
   end
 
   -- Setup UI
   for _, id in ipairs(selectable) do
     local char = M.window_picker.chars:sub(i, i)
-    local ok_status, statusline = pcall(vim.api.nvim_win_get_option, id, "statusline")
-    local ok_hl, winhl = pcall(vim.api.nvim_win_get_option, id, "winhl")
+
+    local ok_status, statusline, ok_hl, winhl
+    if vim.fn.has "nvim-0.10" == 1 then
+      ok_status, statusline = pcall(vim.api.nvim_get_option_value, "statusline", { win = id })
+      ok_hl, winhl = pcall(vim.api.nvim_get_option_value, "winhl", { win = id })
+    else
+      ok_status, statusline = pcall(vim.api.nvim_win_get_option, id, "statusline") ---@diagnostic disable-line: deprecated
+      ok_hl, winhl = pcall(vim.api.nvim_win_get_option, id, "winhl") ---@diagnostic disable-line: deprecated
+    end
 
     win_opts[id] = {
       statusline = ok_status and statusline or "",
@@ -108,8 +132,13 @@ local function pick_win_id()
     }
     win_map[char] = id
 
-    vim.api.nvim_win_set_option(id, "statusline", "%=" .. char .. "%=")
-    vim.api.nvim_win_set_option(id, "winhl", "StatusLine:NvimTreeWindowPicker,StatusLineNC:NvimTreeWindowPicker")
+    if vim.fn.has "nvim-0.10" == 1 then
+      vim.api.nvim_set_option_value("statusline", "%=" .. char .. "%=", { win = id })
+      vim.api.nvim_set_option_value("winhl", "StatusLine:NvimTreeWindowPicker,StatusLineNC:NvimTreeWindowPicker", { win = id })
+    else
+      vim.api.nvim_win_set_option(id, "statusline", "%=" .. char .. "%=") ---@diagnostic disable-line: deprecated
+      vim.api.nvim_win_set_option(id, "winhl", "StatusLine:NvimTreeWindowPicker,StatusLineNC:NvimTreeWindowPicker") ---@diagnostic disable-line: deprecated
+    end
 
     i = i + 1
     if i > #M.window_picker.chars then
@@ -128,14 +157,22 @@ local function pick_win_id()
   -- Restore window options
   for _, id in ipairs(selectable) do
     for opt, value in pairs(win_opts[id]) do
-      vim.api.nvim_win_set_option(id, opt, value)
+      if vim.fn.has "nvim-0.10" == 1 then
+        vim.api.nvim_set_option_value(opt, value, { win = id })
+      else
+        vim.api.nvim_win_set_option(id, opt, value) ---@diagnostic disable-line: deprecated
+      end
     end
   end
 
   if laststatus == 3 then
     for _, id in ipairs(not_selectable) do
       for opt, value in pairs(win_opts[id]) do
-        vim.api.nvim_win_set_option(id, opt, value)
+        if vim.fn.has "nvim-0.10" == 1 then
+          vim.api.nvim_set_option_value(opt, value, { win = id })
+        else
+          vim.api.nvim_win_set_option(id, opt, value) ---@diagnostic disable-line: deprecated
+        end
       end
     end
   end
@@ -153,6 +190,9 @@ local function open_file_in_tab(filename)
   if M.quit_on_open then
     view.close()
   end
+  if M.relative_path then
+    filename = utils.path_relative(filename, vim.fn.getcwd())
+  end
   vim.cmd("tabe " .. vim.fn.fnameescape(filename))
 end
 
@@ -160,12 +200,18 @@ local function drop(filename)
   if M.quit_on_open then
     view.close()
   end
+  if M.relative_path then
+    filename = utils.path_relative(filename, vim.fn.getcwd())
+  end
   vim.cmd("drop " .. vim.fn.fnameescape(filename))
 end
 
 local function tab_drop(filename)
   if M.quit_on_open then
     view.close()
+  end
+  if M.relative_path then
+    filename = utils.path_relative(filename, vim.fn.getcwd())
   end
   vim.cmd("tab :drop " .. vim.fn.fnameescape(filename))
 end
@@ -258,23 +304,19 @@ local function open_in_new_window(filename, mode)
     -- If `hidden` is not enabled, check if buffer in target window is
     -- modified, and create new split if it is.
     local target_bufid = vim.api.nvim_win_get_buf(target_winid)
-    if vim.api.nvim_buf_get_option(target_bufid, "modified") then
+
+    local modified
+    if vim.fn.has "nvim-0.10" == 1 then
+      modified = vim.api.nvim_get_option_value("modified", { buf = target_bufid })
+    else
+      modified = vim.api.nvim_buf_get_option(target_bufid, "modified") ---@diagnostic disable-line: deprecated
+    end
+
+    if modified then
       if not mode:match "split$" then
         mode = "vsplit"
       end
     end
-  end
-
-  local fname = vim.fn.fnameescape(filename)
-  fname = utils.escape_special_chars(fname)
-
-  local cmd
-  if create_new_window then
-    cmd = string.format("%s vsplit %s", new_window_side, fname)
-  elseif mode:match "split$" then
-    cmd = string.format("%s %s", mode, fname)
-  else
-    cmd = string.format("edit %s", fname)
   end
 
   if (mode == "preview" or mode == "preview_no_picker") and view.View.float.enable then
@@ -286,7 +328,24 @@ local function open_in_new_window(filename, mode)
     set_current_win_no_autocmd(target_winid, { "BufEnter" })
   end
 
-  pcall(vim.cmd, cmd)
+  local fname
+  if M.relative_path then
+    fname = utils.escape_special_chars(vim.fn.fnameescape(utils.path_relative(filename, vim.fn.getcwd())))
+  else
+    fname = utils.escape_special_chars(vim.fn.fnameescape(filename))
+  end
+
+  local command
+  if create_new_window then
+    -- generated from vim.api.nvim_parse_cmd("belowright vsplit foo", {})
+    command = { cmd = "vsplit", mods = { split = new_window_side }, args = { fname } }
+  elseif mode:match "split$" then
+    command = { cmd = mode, args = { fname } }
+  else
+    command = { cmd = "edit", args = { fname } }
+  end
+
+  pcall(vim.api.nvim_cmd, command, { output = false })
   lib.set_target_win()
 end
 
@@ -301,6 +360,9 @@ end
 
 local function edit_in_current_buf(filename)
   require("nvim-tree.view").abandon_current_window()
+  if M.relative_path then
+    filename = utils.path_relative(filename, vim.fn.getcwd())
+  end
   vim.cmd("keepalt keepjumps edit " .. vim.fn.fnameescape(filename))
 end
 
@@ -357,6 +419,7 @@ end
 function M.setup(opts)
   M.quit_on_open = opts.actions.open_file.quit_on_open
   M.resize_window = opts.actions.open_file.resize_window
+  M.relative_path = opts.experimental.actions.open_file.relative_path
   if opts.actions.open_file.window_picker.chars then
     opts.actions.open_file.window_picker.chars = tostring(opts.actions.open_file.window_picker.chars):upper()
   end

@@ -7,8 +7,9 @@
 [
   "local"
   "type"
-  "export"
 ] @keyword
+
+"export" @keyword.import
 
 (do_statement
   [
@@ -132,12 +133,10 @@
 (identifier) @variable
 
 ; Types
-(type
-  (identifier) @type)
+(type/identifier) @type
 
-(type
-  (generic_type
-    (identifier) @type))
+(generic_type
+  (identifier) @type)
 
 (builtin_type) @type.builtin
 
@@ -161,6 +160,8 @@
 
 ((identifier) @variable.builtin
   (#eq? @variable.builtin "self"))
+
+"..." @variable.builtin
 
 ((identifier) @module.builtin
   (#any-of? @module.builtin "_G" "debug" "io" "jit" "math" "os" "package" "string" "table" "utf8"))

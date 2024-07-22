@@ -73,6 +73,7 @@ return {
   ["@markup.link.label"] = { fg = theme.base0C },
   ["@markup.list"] = { fg = theme.base08 },
   ["@markup.strong"] = { bold = true },
+  ["@markup.underline"] = { underline = true },
   ["@markup.italic"] = { italic = true },
   ["@markup.strikethrough"] = { strikethrough = true },
   ["@markup.quote"] = { bg = base30.black2 },
@@ -80,7 +81,7 @@ return {
   ["@comment"] = { fg = base30.grey_fg },
   ["@comment.todo"] = { fg = base30.grey, bg = base30.white },
   ["@comment.warning"] = { fg = base30.black2, bg = theme.base09 },
-  ["@comment.note"] = { fg = base30.black2, bg = base30.white },
+  ["@comment.note"] = { fg = base30.black, bg = base30.blue },
   ["@comment.danger"] = { fg = base30.black2, bg = base30.red },
 
   ["@diff.plus"] = { fg = base30.green },

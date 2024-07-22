@@ -67,11 +67,6 @@
   bound_identifier: (simple_identifier)) @variable
 
 [
-  "typealias"
-  "struct"
-  "class"
-  "actor"
-  "enum"
   "protocol"
   "extension"
   "indirect"
@@ -88,6 +83,13 @@
 ] @keyword
 
 [
+  "enum"
+  "struct"
+  "class"
+  "typealias"
+] @keyword.type
+
+[
   "async"
   "await"
 ] @keyword.coroutine
@@ -97,6 +99,8 @@
   (setter_specifier)
   (modify_specifier)
 ] @keyword
+
+(shebang_line) @keyword.directive
 
 (class_body
   (property_declaration

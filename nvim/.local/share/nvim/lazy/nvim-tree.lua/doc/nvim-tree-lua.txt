@@ -103,7 +103,7 @@ Git Integration
 
 Requirements
 
-    This file explorer requires `neovim >= 0.8.0`
+    This file explorer requires `neovim >= 0.9.0`
 
 ==============================================================================
  2. QUICKSTART                                          *nvim-tree-quickstart*
@@ -620,7 +620,13 @@ Following is the default configuration. See |nvim-tree-opts| for details.
           default_yes = false,
         },
       },
-      experimental = {},
+      experimental = {
+        actions = {
+          open_file = {
+            relative_path = false,
+          },
+        },
+      },
       log = {
         enable = false,
         truncate = false,
@@ -832,7 +838,6 @@ Use nvim-tree in a floating window.
 
 Highlight precedence, additive:
   git < opened < modified < bookmarked < diagnostics < copied < cut
-Neovim <= 0.8 will only show the highest.
 
 *nvim-tree.renderer.add_trailing*
 Appends a trailing slash to folder names.
@@ -1171,8 +1176,9 @@ Only relevant when `git.show_on_dirs` is `true`.
 
 *nvim-tree.git.disable_for_dirs*
 Disable git integration when git top-level matches these paths.
-May be relative, evaluated via |fnamemodify| `":p"`
-  Type: `table`, Default: `{}`
+Strings may be relative, evaluated via |fnamemodify| `":p"`
+Function is passed an absolute path and returns true for disable.
+  Type: `string[] | fun(path: string): boolean`, Default: `{}`
 
 *nvim-tree.git.timeout*
 Kills the git process after some time if it takes too long.
@@ -1334,10 +1340,12 @@ Idle milliseconds between filesystem change and action.
   Type: `number`, Default: `50` (ms)
 
 *nvim-tree.filesystem_watchers.ignore_dirs*
-List of vim regex for absolute directory paths that will not be watched.
-Backslashes must be escaped e.g. `"my-project/\\.build$"`. See |string-match|.
+List of vim regex for absolute directory paths that will not be watched or
+function returning whether a path should be ignored.
+Strings must be backslash escaped e.g. `"my-proj/\\.build$"`. See |string-match|.
+Function is passed an absolute path.
 Useful when path is not in `.gitignore` or git integration is disabled.
-  Type: {string}, Default: `{}`
+  Type: `string[] | fun(path: string): boolean`, Default: `{}`
 
 ==============================================================================
  5.13 OPTS: ACTIONS                                   *nvim-tree-opts-actions*
@@ -1537,6 +1545,12 @@ Confirmation prompts.
 Experimental features that may become default or optional functionality.
 In the event of a problem please disable the experiment and raise an issue.
 
+    *nvim-tree.experimental.actions.open_file.relative_path*
+    Buffers opened by nvim-tree will use with relative paths instead of
+    absolute.
+    Execute |:ls| to see the paths of all open buffers.
+      Type: `boolean`, Default: `false`
+
 ==============================================================================
  5.20 OPTS: LOG                                           *nvim-tree-opts-log*
 
@@ -1655,6 +1669,22 @@ tree.focus()                                      *nvim-tree-api.tree.focus()*
 
 tree.reload()                                    *nvim-tree-api.tree.reload()*
     Refresh the tree. Does nothing if closed.
+
+tree.resize({opts})                              *nvim-tree-api.tree.resize()*
+    Resize the tree, persisting the new size.
+    Resets to |nvim-tree.view.width| when no {opts} provided.
+    See |:NvimTreeResize|
+
+    Parameters: ~
+      • {opts} (table) optional parameters
+
+    Options: ~
+      • {width}    (table)  new |nvim-tree.view.width| value
+      • {absolute} (number) set the width
+      • {relative} (number) increase or decrease the width
+
+    Only one option is supported, in the priority order above.
+    {absolute} and {relative} do nothing when {width} is a function.
 
 tree.change_root({path})                    *nvim-tree-api.tree.change_root()*
     Change the tree's root to a path.
@@ -2772,6 +2802,7 @@ highlight group is not, hard linking as follows: >
 |nvim-tree.diagnostics.show_on_open_dirs|
 |nvim-tree.disable_netrw|
 |nvim-tree.experimental|
+|nvim-tree.experimental.actions.open_file.relative_path|
 |nvim-tree.filesystem_watchers.debounce_delay|
 |nvim-tree.filesystem_watchers.enable|
 |nvim-tree.filesystem_watchers.ignore_dirs|
@@ -2986,6 +3017,7 @@ highlight group is not, hard linking as follows: >
 |nvim-tree-api.tree.is_visible()|
 |nvim-tree-api.tree.open()|
 |nvim-tree-api.tree.reload()|
+|nvim-tree-api.tree.resize()|
 |nvim-tree-api.tree.search_node()|
 |nvim-tree-api.tree.toggle()|
 |nvim-tree-api.tree.toggle_custom_filter()|

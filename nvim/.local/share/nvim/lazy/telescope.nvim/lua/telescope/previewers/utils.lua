@@ -5,12 +5,14 @@ local conf = require("telescope.config").values
 local Job = require "plenary.job"
 local Path = require "plenary.path"
 
+local telescope_utils = require "telescope.utils"
+
 local utils = {}
 
 local detect_from_shebang = function(p)
   local s = p:readbyterange(0, 256)
   if s then
-    local lines = vim.split(s, "\n")
+    local lines = telescope_utils.split_lines(s)
     return vim.filetype.match { contents = lines }
   end
 end
@@ -24,7 +26,7 @@ end
 local detect_from_modeline = function(p)
   local s = p:readbyterange(-256, 256)
   if s then
-    local lines = vim.split(s, "\n")
+    local lines = telescope_utils.split_lines(s)
     local idx = lines[#lines] ~= "" and #lines or #lines - 1
     if idx >= 1 then
       return parse_modeline(lines[idx])
@@ -220,6 +222,23 @@ utils.set_preview_message = function(bufnr, winid, message, fillchar)
       { virt_text = { { line, "TelescopePreviewMessage" } }, virt_text_pos = "overlay", virt_text_win_col = col }
     )
   end
+end
+
+--- Check if mime type is binary.
+--- NOT an exhaustive check, may get false negatives. Ideally should check
+--- filetype with `vim.filetype.match` or `filetype_detect` first for filetype
+--- info.
+---@param mime_type string
+---@return boolean
+utils.binary_mime_type = function(mime_type)
+  local type_, subtype = unpack(vim.split(mime_type, "/"))
+  if vim.tbl_contains({ "text", "inode" }, type_) then
+    return false
+  end
+  if vim.tbl_contains({ "json", "javascript" }, subtype) then
+    return false
+  end
+  return true
 end
 
 return utils

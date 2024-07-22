@@ -131,8 +131,14 @@ function M:mount()
     self.buf = vim.api.nvim_create_buf(false, true)
   end
 
-  local normal = vim.api.nvim_get_hl(0, { name = "Normal" })
-  local has_bg = normal and normal.bg ~= nil
+  local normal, has_bg
+  if vim.fn.has("nvim-0.9.0") == 0 then
+    normal = vim.api.nvim_get_hl_by_name("Normal", true)
+    has_bg = normal and normal.background ~= nil
+  else
+    normal = vim.api.nvim_get_hl(0, { name = "Normal" })
+    has_bg = normal and normal.bg ~= nil
+  end
 
   if has_bg and self.opts.backdrop and self.opts.backdrop < 100 and vim.o.termguicolors then
     self.backdrop_buf = vim.api.nvim_create_buf(false, true)
@@ -150,6 +156,7 @@ function M:mount()
     Util.wo(self.backdrop_win, "winhighlight", "Normal:LazyBackdrop")
     Util.wo(self.backdrop_win, "winblend", self.opts.backdrop)
     vim.bo[self.backdrop_buf].buftype = "nofile"
+    vim.bo[self.backdrop_buf].filetype = "lazy_backdrop"
   end
 
   self:layout()
@@ -244,8 +251,9 @@ end
 ---@param key string
 ---@param fn fun(self?)
 ---@param desc? string
-function M:on_key(key, fn, desc)
-  vim.keymap.set("n", key, function()
+---@param mode? string[]
+function M:on_key(key, fn, desc, mode)
+  vim.keymap.set(mode or "n", key, function()
     fn(self)
   end, {
     nowait = true,
@@ -287,6 +295,7 @@ function M:close(opts)
       vim.diagnostic.reset(Config.ns, buf)
       vim.api.nvim_buf_delete(buf, { force = true })
     end
+    vim.cmd.redraw()
   end)
 end
 

@@ -1,108 +1,57 @@
-local Keys = require("which-key.keys")
-local Util = require("which-key.util")
-
----@class WhichKey
+---@class wk
+---@field private _queue {spec: wk.Spec, opts?: wk.Parse}[]
 local M = {}
 
-local loaded = false -- once we loaded everything
-local scheduled = false
+M._queue = {}
 
-local function schedule_load()
-  if scheduled then
-    return
-  end
-  scheduled = true
-  if vim.v.vim_did_enter == 0 then
-    vim.cmd([[au VimEnter * ++once lua require("which-key").load()]])
-  else
-    M.load()
-  end
-end
+local timer = (vim.uv or vim.loop).new_timer()
+timer:start(
+  500,
+  0,
+  vim.schedule_wrap(function()
+    M.setup()
+  end)
+)
 
----@param options? Options
-function M.setup(options)
-  require("which-key.config").setup(options)
-  schedule_load()
-end
-
-function M.execute(id)
-  local func = Keys.functions[id]
-  return func()
-end
-
-function M.show(keys, opts)
+--- Open which-key
+---@param opts? wk.Filter|string
+function M.show(opts)
   opts = opts or {}
-  if type(opts) == "string" then
-    opts = { mode = opts }
-  end
-
-  keys = keys or ""
-
-  opts.mode = opts.mode or Util.get_mode()
-  local buf = vim.api.nvim_get_current_buf()
-  -- make sure the trees exist for update
-  Keys.get_tree(opts.mode)
-  Keys.get_tree(opts.mode, buf)
-  -- update only trees related to buf
-  Keys.update(buf)
-  -- trigger which key
-  require("which-key.view").open(keys, opts)
-end
-
-function M.show_command(keys, mode)
-  keys = keys or ""
-  keys = (keys == '""' or keys == "''") and "" or keys
-  mode = (mode == '""' or mode == "''") and "" or mode
-  mode = mode or "n"
-  keys = Util.t(keys)
-  if not Util.check_mode(mode) then
-    Util.error(
-      "Invalid mode passed to :WhichKey (Don't create any keymappings to trigger WhichKey. WhichKey does this automatically)"
+  opts = type(opts) == "string" and { keys = opts } or opts
+  opts.delay = 0
+  ---@diagnostic disable-next-line: param-type-mismatch
+  if not require("which-key.state").start(opts) then
+    require("which-key.util").warn(
+      "No mappings found for mode `" .. (opts.mode or "n") .. "` and keys `" .. (opts.keys or "") .. "`"
     )
-  else
-    M.show(keys, { mode = mode })
   end
 end
 
-local queue = {}
+---@param opts? wk.Opts
+function M.setup(opts)
+  timer:stop()
+  require("which-key.config").setup(opts)
+end
 
--- Defer registering keymaps until VimEnter
+-- Use `require("which-key").add()` instead.
+-- The spec is different though, so check the docs!
+---@deprecated
+---@param mappings wk.Spec
+---@param opts? wk.Mapping
 function M.register(mappings, opts)
-  schedule_load()
-  if loaded then
-    Keys.register(mappings, opts)
-    Keys.update()
-  else
-    table.insert(queue, { mappings, opts })
+  if opts then
+    for k, v in pairs(opts) do
+      mappings[k] = v
+    end
   end
+  M.add(mappings, { version = 1 })
 end
 
--- Load mappings and update only once
-function M.load()
-  if loaded then
-    return
-  end
-  require("which-key.plugins").setup()
-  require("which-key.colors").setup()
-  Keys.register({}, { prefix = "<leader>", mode = "n" })
-  Keys.register({}, { prefix = "<leader>", mode = "v" })
-  Keys.setup()
-
-  for _, reg in pairs(queue) do
-    local opts = reg[2] or {}
-    opts.update = false
-    Keys.register(reg[1], opts)
-  end
-  Keys.update()
-  queue = {}
-  loaded = true
-end
-
-function M.reset()
-  -- local mappings = Keys.mappings
-  require("plenary.reload").reload_module("which-key")
-  -- require("which-key.Keys").mappings = mappings
-  require("which-key").setup()
+--- Add mappings to which-key
+---@param mappings wk.Spec
+---@param opts? wk.Parse
+function M.add(mappings, opts)
+  table.insert(M._queue, { spec = mappings, opts = opts })
 end
 
 return M

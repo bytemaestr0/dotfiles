@@ -1,4 +1,4 @@
-require "base46.term"
+dofile(vim.g.base46_cache .. "term")
 
 local api = vim.api
 local g = vim.g
@@ -10,9 +10,12 @@ g.nvchad_terms = {}
 local pos_data = {
   sp = { resize = "height", area = "lines" },
   vsp = { resize = "width", area = "columns" },
+  ["bo sp"] = { resize = "height", area = "lines" },
+  ["bo vsp"] = { resize = "width", area = "columns" },
 }
 
-local config = require("nvconfig").ui.term
+local nvconfig = require "nvconfig"
+local config = nvconfig.term or nvconfig.ui.term
 
 -- used for initially resizing terms
 vim.g.nvhterm = false
@@ -48,7 +51,7 @@ local function format_cmd(cmd)
   return type(cmd) == "string" and cmd or cmd()
 end
 
-local function display(opts)
+M.display = function(opts)
   if opts.pos == "float" then
     create_float(opts.buf, opts.float_opts)
   else
@@ -60,10 +63,14 @@ local function display(opts)
 
   vim.wo[win].number = false
   vim.wo[win].relativenumber = false
-  -- vim.wo[win].foldcolumn = "0"
-  -- vim.wo[win].signcolumn = "no"
+
+  local winops = opts.winopts or config.winopts or {}
+
+  for k, v in pairs(winops) do
+    vim.wo[win][k] = v
+  end
+
   vim.bo[opts.buf].buflisted = false
-  vim.wo[win].winhl = opts.hl or config.hl
   vim.cmd "startinsert"
 
   -- resize non floating wins initially + or only when they're toggleable
@@ -89,7 +96,7 @@ local function create(opts)
     cmd = { shell, "-c", format_cmd(opts.cmd) .. "; " .. shell }
   end
 
-  display(opts)
+  M.display(opts)
 
   save_term_info(opts.buf, opts)
 
@@ -127,15 +134,15 @@ M.runner = function(opts)
   if x == nil then
     create(opts)
   else
-    -- window isnt visible 
+    -- window isnt visible
     if vim.fn.bufwinid(x.buf) == -1 then
-      display(opts)
+      M.display(opts)
     end
-    
+
     local cmd = format_cmd(opts.cmd)
 
     if x.buf == api.nvim_get_current_buf() then
-      set_buf(g.buf_history[#g.buf_history -1])
+      set_buf(g.buf_history[#g.buf_history - 1])
       cmd = format_cmd(opts.cmd)
       set_buf(x.buf)
     end

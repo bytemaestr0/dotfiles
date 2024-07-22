@@ -1,216 +1,147 @@
 local Config = require("which-key.config")
-local Text = require("which-key.text")
-local Keys = require("which-key.keys")
-local Util = require("which-key.util")
+local M = {}
 
----@class Layout
----@field mapping Mapping
----@field items VisualMapping[]
----@field options Options
----@field text Text
----@field results MappingGroup
-local Layout = {}
-Layout.__index = Layout
+local dw = vim.fn.strdisplaywidth
 
----@param mappings MappingGroup
----@param options? Options
-function Layout:new(mappings, options)
-  options = options or Config.options
-  local this = {
-    results = mappings,
-    mapping = mappings.mapping,
-    items = mappings.mappings,
-    options = options,
-    text = Text:new(),
-  }
-  setmetatable(this, self)
-  return this
-end
+--- When `size` is a number, it is returned as is (fixed dize).
+--- Otherwise, it is a percentage of `parent` (relative size).
+--- If `size` is negative, it is subtracted from `parent`.
+--- If `size` is a table, it is a range of values.
+---@alias wk.Dim number|{min:number, max:number}
 
-function Layout:max_width(key)
-  local max = 0
-  for _, item in pairs(self.items) do
-    if item[key] and Text.len(item[key]) > max then
-      max = Text.len(item[key])
+---@param size number
+---@param parent number
+---@param ... wk.Dim
+---@return number
+function M.dim(size, parent, ...)
+  size = math.abs(size) < 1 and parent * size or size
+  size = size < 0 and parent + size or size
+  for _, dim in ipairs({ ... } --[[ @as wk.Dim[] ]]) do
+    if type(dim) == "number" then
+      size = M.dim(dim, parent)
+    else
+      local min = dim.min and M.dim(dim.min, parent) or 0
+      local max = dim.max and M.dim(dim.max, parent) or parent
+      size = math.max(min, math.min(max, size))
     end
   end
-  return max
+  return math.floor(math.max(0, math.min(parent, size)) + 0.5)
 end
 
-function Layout:trail()
-  local prefix_i = self.results.prefix_i
-  local buf_path = Keys.get_tree(self.results.mode, self.results.buf).tree:path(prefix_i)
-  local path = Keys.get_tree(self.results.mode).tree:path(prefix_i)
-  local len = #self.results.mapping.keys.notation
-  local cmd_line = { { " " } }
-  for i = 1, len, 1 do
-    local node = buf_path[i]
-    if not (node and node.mapping and node.mapping.label) then
-      node = path[i]
+---@class wk.Table: wk.Table.opts
+local Table = {}
+Table.__index = Table
+
+---@param opts wk.Table.opts
+function Table.new(opts)
+  local self = setmetatable({}, Table)
+  self.cols = opts.cols
+  self.rows = opts.rows
+  return self
+end
+
+---@param opts? {spacing?: number}
+---@return string[][], number[], number
+function Table:cells(opts)
+  opts = opts or {}
+  opts.spacing = opts.spacing or 1
+
+  local widths = {} ---@type number[] actual column widths
+
+  local cells = {} ---@type string[][]
+
+  local total = 0
+  for c, col in ipairs(self.cols) do
+    widths[c] = 0
+    local all_ws = true
+    for r, row in ipairs(self.rows) do
+      cells[r] = cells[r] or {}
+      local value = row[col.key] or col.default or ""
+      value = tostring(value)
+      value = value:gsub("%s*$", "")
+      value = value:gsub("\n", Config.icons.keys.NL)
+      value = vim.fn.strtrans(value)
+      if value:find("%S") then
+        all_ws = false
+      end
+      if col.padding then
+        value = (" "):rep(col.padding[1] or 0) .. value .. (" "):rep(col.padding[2] or 0)
+      end
+      if c ~= #self.cols then
+        value = value .. (" "):rep(opts.spacing)
+      end
+      cells[r][c] = value
+      widths[c] = math.max(widths[c], dw(value))
     end
-    local step = self.mapping.keys.notation[i]
-    if node and node.mapping and node.mapping.label then
-      step = self.options.icons.group .. node.mapping.label
-    end
-    if Config.options.key_labels[step] then
-      step = Config.options.key_labels[step]
-    end
-    if Config.options.show_keys then
-      table.insert(cmd_line, { step, "WhichKeyGroup" })
-      if i ~= #self.mapping.keys.notation then
-        table.insert(cmd_line, { " " .. self.options.icons.breadcrumb .. " ", "WhichKeySeparator" })
+    if all_ws then
+      widths[c] = 0
+      for _, cell in pairs(cells) do
+        cell[c] = ""
       end
     end
-  end
-  local width = 0
-  if Config.options.show_keys then
-    for _, line in pairs(cmd_line) do
-      width = width + Text.len(line[1])
-    end
-  end
-  local help = { --
-    ["<bs>"] = "go up one level",
-    ["<esc>"] = "close",
-  }
-  if #self.text.lines > self.options.layout.height.max then
-    help[Config.options.popup_mappings.scroll_down] = "scroll down"
-    help[Config.options.popup_mappings.scroll_up] = "scroll up"
-  end
-  local help_line = {}
-  local help_width = 0
-  for key, label in pairs(help) do
-    help_width = help_width + Text.len(key) + Text.len(label) + 2
-    table.insert(help_line, { key .. " ", "WhichKey" })
-    table.insert(help_line, { label .. " ", "WhichKeySeparator" })
-  end
-  if Config.options.show_keys then
-    table.insert(cmd_line, { string.rep(" ", math.floor(vim.o.columns / 2 - help_width / 2) - width) })
+    total = total + widths[c]
   end
 
-  if self.options.show_help then
-    for _, l in pairs(help_line) do
-      table.insert(cmd_line, l)
-    end
-  end
-  if vim.o.cmdheight > 0 then
-    vim.api.nvim_echo(cmd_line, false, {})
-    vim.cmd([[redraw]])
-  else
-    local col = 1
-    self.text:nl()
-    local row = #self.text.lines
-    for _, text in ipairs(cmd_line) do
-      self.text:set(row, col, text[1], text[2] and text[2]:gsub("WhichKey", "") or nil)
-      col = col + vim.fn.strwidth(text[1])
-    end
-  end
+  return cells, widths, total
 end
 
-function Layout:layout(win)
-  local pad_top, pad_right, pad_bot, pad_left = unpack(self.options.window.padding)
-  local window_width = vim.api.nvim_win_get_width(win)
-  local width = window_width
-  width = width - pad_right - pad_left
+---@param opts {width: number, spacing?: number}
+function Table:layout(opts)
+  local cells, widths = self:cells(opts)
 
-  local max_key_width = self:max_width("key")
-  local max_label_width = self:max_width("label")
-  local max_value_width = self:max_width("value")
+  local free = opts.width
 
-  local intro_width = max_key_width + 2 + Text.len(self.options.icons.separator) + self.options.layout.spacing
-  local max_width = max_label_width + intro_width + max_value_width
-  if max_width > width then
-    max_width = width
-  end
-
-  local column_width = max_width
-
-  if max_value_width == 0 then
-    if column_width > self.options.layout.width.max then
-      column_width = self.options.layout.width.max
+  for c, col in ipairs(self.cols) do
+    if not col.width then
+      free = free - widths[c]
     end
-    if column_width < self.options.layout.width.min then
-      column_width = self.options.layout.width.min
-    end
-  else
-    max_value_width = math.min(max_value_width, math.floor((column_width - intro_width) / 2))
   end
+  free = math.max(free, 0)
 
-  max_label_width = column_width - (intro_width + max_value_width)
-
-  local columns = math.floor(width / column_width)
-
-  local height = math.ceil(#self.items / columns)
-  if height < self.options.layout.height.min then
-    height = self.options.layout.height.min
-  end
-  -- if height > self.options.layout.height.max then height = self.options.layout.height.max end
-
-  local col = 1
-  local row = 1
-
-  local columns_used = math.min(columns, math.ceil(#self.items / height))
-  local offset_x = 0
-  if columns_used < columns then
-    if self.options.layout.align == "right" then
-      offset_x = (columns - columns_used) * column_width
-    elseif self.options.layout.align == "center" then
-      offset_x = math.floor((columns - columns_used) * column_width / 2)
+  for c, col in ipairs(self.cols) do
+    if col.width then
+      widths[c] = M.dim(widths[c], free, { max = col.width })
+      free = free - widths[c]
     end
   end
 
-  for _, item in pairs(self.items) do
-    local start = (col - 1) * column_width + self.options.layout.spacing + offset_x + pad_left
-    local key = item.key or ""
-    if key == "<lt>" then
-      key = "<"
-    end
-    if key == Util.t("<esc>") then
-      key = "<esc>"
-    end
-    if Text.len(key) < max_key_width then
-      key = string.rep(" ", max_key_width - Text.len(key)) .. key
-    end
+  ---@type {value: string, hl?:string}[][]
+  local ret = {}
 
-    self.text:set(row + pad_top, start, key, "")
-    start = start + Text.len(key) + 1
-
-    self.text:set(row + pad_top, start, self.options.icons.separator, "Separator")
-    start = start + Text.len(self.options.icons.separator) + 1
-
-    if item.value then
-      local value = item.value
-      start = start + 1
-      if Text.len(value) > max_value_width then
-        value = vim.fn.strcharpart(value, 0, max_value_width - 2) .. " …"
-      end
-      self.text:set(row + pad_top, start, value, "Value")
-      if item.highlights then
-        for _, hl in pairs(item.highlights) do
-          self.text:highlight(row + pad_top, start + hl[1] - 1, start + hl[2] - 1, hl[3])
+  for _, row in ipairs(cells) do
+    ---@type {value: string, hl?:string}[]
+    local line = {}
+    for c, col in ipairs(self.cols) do
+      local value = row[c]
+      local width = dw(value)
+      if width > widths[c] then
+        local old = value
+        value = ""
+        for i = 0, vim.fn.strchars(old) do
+          value = value .. vim.fn.strcharpart(old, i, 1)
+          if dw(value) >= widths[c] - 1 - (opts.spacing or 1) then
+            break
+          end
+        end
+        value = value .. Config.icons.ellipsis .. string.rep(" ", opts.spacing or 1)
+      else
+        local align = col.align or "left"
+        if align == "left" then
+          value = value .. (" "):rep(widths[c] - width)
+        elseif align == "right" then
+          value = (" "):rep(widths[c] - width) .. value
+        elseif align == "center" then
+          local pad = (widths[c] - width) / 2
+          value = (" "):rep(math.floor(pad)) .. value .. (" "):rep(math.ceil(pad))
         end
       end
-      start = start + max_value_width + 2
+      line[#line + 1] = { value = value, hl = col.hl }
     end
-
-    local label = item.label
-    if Text.len(label) > max_label_width then
-      label = vim.fn.strcharpart(label, 0, max_label_width - 2) .. " …"
-    end
-    self.text:set(row + pad_top, start, label, item.group and "Group" or "Desc")
-
-    if row % height == 0 then
-      col = col + 1
-      row = 1
-    else
-      row = row + 1
-    end
+    ret[#ret + 1] = line
   end
-
-  for _ = 1, pad_bot, 1 do
-    self.text:nl()
-  end
-  self:trail()
-  return self.text
+  return ret
 end
 
-return Layout
+M.new = Table.new
+
+return M

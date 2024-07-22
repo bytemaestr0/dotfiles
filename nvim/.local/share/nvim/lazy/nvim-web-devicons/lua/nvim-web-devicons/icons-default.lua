@@ -12,7 +12,7 @@ local icons_by_filename = {
     name = "GradleSettings",
   },
   [".babelrc"] = {
-    icon = "",
+    icon = "",
     color = "#cbcb41",
     cterm_color = "185",
     name = "Babelrc",
@@ -107,6 +107,12 @@ local icons_by_filename = {
     cterm_color = "28",
     name = "Gvimrc",
   },
+  [".justfile"] = {
+    icon = "",
+    color = "#6d8086",
+    cterm_color = "66",
+    name = "Justfile",
+  },
   [".luaurc"] = {
     icon = "",
     color = "#00a2ff",
@@ -130,6 +136,12 @@ local icons_by_filename = {
     color = "#E8274B",
     cterm_color = "197",
     name = "NPMrc",
+  },
+  [".nvmrc"] = {
+    icon = "",
+    color = "#5FA04E",
+    cterm_color = "71",
+    name = "node",
   },
   [".prettierrc"] = {
     icon = "",
@@ -377,7 +389,25 @@ local icons_by_filename = {
     cterm_color = "24",
     name = "Groovy",
   },
-  ["gruntfile"] = {
+  ["gruntfile.babel.js"] = {
+    icon = "",
+    color = "#e37933",
+    cterm_color = "166",
+    name = "Gruntfile",
+  },
+  ["gruntfile.coffee"] = {
+    icon = "",
+    color = "#e37933",
+    cterm_color = "166",
+    name = "Gruntfile",
+  },
+  ["gruntfile.js"] = {
+    icon = "",
+    color = "#e37933",
+    cterm_color = "166",
+    name = "Gruntfile",
+  },
+  ["gruntfile.ts"] = {
     icon = "",
     color = "#e37933",
     cterm_color = "166",
@@ -389,7 +419,25 @@ local icons_by_filename = {
     cterm_color = "231",
     name = "GTK",
   },
-  ["gulpfile"] = {
+  ["gulpfile.babel.js"] = {
+    icon = "",
+    color = "#cc3e44",
+    cterm_color = "167",
+    name = "Gulpfile",
+  },
+  ["gulpfile.coffee"] = {
+    icon = "",
+    color = "#cc3e44",
+    cterm_color = "167",
+    name = "Gulpfile",
+  },
+  ["gulpfile.js"] = {
+    icon = "",
+    color = "#cc3e44",
+    cterm_color = "167",
+    name = "Gulpfile",
+  },
+  ["gulpfile.ts"] = {
     icon = "",
     color = "#cc3e44",
     cterm_color = "167",
@@ -418,6 +466,12 @@ local icons_by_filename = {
     color = "#1c99f3",
     cterm_color = "32",
     name = "Cantorrc",
+  },
+  ["justfile"] = {
+    icon = "",
+    color = "#6d8086",
+    cterm_color = "66",
+    name = "Justfile",
   },
   ["kalgebrarc"] = {
     icon = "",
@@ -730,9 +784,27 @@ local icons_by_file_extension = {
   },
   ["aac"] = {
     icon = "",
-    color = "#66D8EF",
-    cterm_color = "45",
-    name = "Aac",
+    color = "#00afff",
+    cterm_color = "39",
+    name = "AdvancedAudioCoding",
+  },
+  ["aif"] = {
+    icon = "",
+    color = "#00afff",
+    cterm_color = "39",
+    name = "AudioInterchangeFileFormat",
+  },
+  ["aiff"] = {
+    icon = "",
+    color = "#00afff",
+    cterm_color = "39",
+    name = "AudioInterchangeFileFormat",
+  },
+  ["ape"] = {
+    icon = "",
+    color = "#00afff",
+    cterm_color = "39",
+    name = "MonkeysAudio",
   },
   ["ai"] = {
     icon = "",
@@ -823,6 +895,18 @@ local icons_by_file_extension = {
     color = "#cbcb41",
     cterm_color = "185",
     name = "BibTeX",
+  },
+  ["bicep"] = {
+    icon = "",
+    color = "#519aba",
+    cterm_color = "74",
+    name = "Bicep",
+  },
+  ["bicepparam"] = {
+    icon = "",
+    color = "#9f74b3",
+    cterm_color = "133",
+    name = "BicepParameters",
   },
   ["bin"] = {
     icon = "",
@@ -1118,6 +1202,12 @@ local icons_by_file_extension = {
     cterm_color = "28",
     name = "D",
   },
+  ["d.ts"] = {
+    icon = "",
+    color = "#d59855",
+    cterm_color = "172",
+    name = "TypeScriptDeclaration",
+  },
   ["dart"] = {
     icon = "",
     color = "#03589C",
@@ -1408,9 +1498,9 @@ local icons_by_file_extension = {
   },
   ["flac"] = {
     icon = "",
-    color = "#66D8EF",
-    cterm_color = "45",
-    name = "Flac",
+    color = "#0075aa",
+    cterm_color = "24",
+    name = "FreeLosslessAudioCodec",
   },
   ["flc"] = {
     icon = "",
@@ -2026,9 +2116,9 @@ local icons_by_file_extension = {
   },
   ["m4a"] = {
     icon = "",
-    color = "#66D8EF",
-    cterm_color = "45",
-    name = "M4A",
+    color = "#00afff",
+    cterm_color = "39",
+    name = "MPEG4",
   },
   ["m4v"] = {
     icon = "",
@@ -2138,6 +2228,18 @@ local icons_by_file_extension = {
     cterm_color = "215",
     name = "Mobi",
   },
+  ["mojo"] = {
+    icon = "",
+    color = "#ff4c1f",
+    cterm_color = "196",
+    name = "Mojo",
+  },
+  ["🔥"] = {
+    icon = "",
+    color = "#ff4c1f",
+    cterm_color = "196",
+    name = "Mojo",
+  },
   ["mov"] = {
     icon = "",
     color = "#FD971F",
@@ -2146,9 +2248,9 @@ local icons_by_file_extension = {
   },
   ["mp3"] = {
     icon = "",
-    color = "#66D8EF",
-    cterm_color = "45",
-    name = "Mp3",
+    color = "#00afff",
+    cterm_color = "39",
+    name = "MPEGAudioLayerIII",
   },
   ["mp4"] = {
     icon = "",
@@ -2224,15 +2326,15 @@ local icons_by_file_extension = {
   },
   ["ogg"] = {
     icon = "",
-    color = "#66D8EF",
-    cterm_color = "45",
-    name = "Ogg",
+    color = "#0075aa",
+    cterm_color = "24",
+    name = "OggVorbis",
   },
   ["opus"] = {
-    icon = "󰈣",
-    color = "#F88A02",
-    cterm_color = "208",
-    name = "OPUS",
+    icon = "",
+    color = "#0075aa",
+    cterm_color = "24",
+    name = "OpusAudioFile",
   },
   ["org"] = {
     icon = "",
@@ -2269,6 +2371,12 @@ local icons_by_file_extension = {
     color = "#6d8086",
     cterm_color = "66",
     name = "PackedResource",
+  },
+  ["pcm"] = {
+    icon = "",
+    color = "#0075aa",
+    cterm_color = "24",
+    name = "PulseCodeModulation",
   },
   ["pdf"] = {
     icon = "",
@@ -2894,6 +3002,12 @@ local icons_by_file_extension = {
     cterm_color = "214",
     name = "Tgz",
   },
+  ["tmux"] = {
+    icon = "",
+    color = "#14ba19",
+    cterm_color = "34",
+    name = "Tmux",
+  },
   ["toml"] = {
     icon = "",
     color = "#9c4221",
@@ -2916,7 +3030,7 @@ local icons_by_file_extension = {
     icon = "",
     color = "#519aba",
     cterm_color = "74",
-    name = "Ts",
+    name = "TypeScript",
   },
   ["tscn"] = {
     icon = "",
@@ -3034,9 +3148,9 @@ local icons_by_file_extension = {
   },
   ["wav"] = {
     icon = "",
-    color = "#66D8EF",
-    cterm_color = "45",
-    name = "Wav",
+    color = "#00afff",
+    cterm_color = "39",
+    name = "WaveformAudioFile",
   },
   ["webm"] = {
     icon = "",
@@ -3061,6 +3175,12 @@ local icons_by_file_extension = {
     color = "#519aba",
     cterm_color = "74",
     name = "Webpack",
+  },
+  ["wma"] = {
+    icon = "",
+    color = "#00afff",
+    cterm_color = "39",
+    name = "WindowsMediaAudio",
   },
   ["woff"] = {
     icon = "",
@@ -3383,12 +3503,6 @@ local icons_by_operating_system = {
     cterm_color = "238",
     name = "LXLE",
   },
-  ["mint"] = {
-    icon = "󰣭",
-    color = "#66af3d",
-    cterm_color = "70",
-    name = "Mint",
-  },
   ["mageia"] = {
     icon = "",
     color = "#2397d4",
@@ -3400,6 +3514,12 @@ local icons_by_operating_system = {
     color = "#33b959",
     cterm_color = "35",
     name = "Manjaro",
+  },
+  ["mint"] = {
+    icon = "󰣭",
+    color = "#66af3d",
+    cterm_color = "70",
+    name = "Mint",
   },
   ["mxlinux"] = {
     icon = "",

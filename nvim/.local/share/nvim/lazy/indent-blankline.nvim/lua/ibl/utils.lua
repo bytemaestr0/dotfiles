@@ -247,6 +247,7 @@ end
 ---@return ibl.listchars
 M.get_listchars = function(bufnr)
     local listchars
+    ---@diagnostic disable-next-line
     local list = vim.opt.list:get()
     if list then
         listchars = vim.opt.listchars:get()
@@ -395,6 +396,19 @@ M.get_foldtextresult = function(bufnr, row)
 end
 
 ---@param bufnr number
+---@return boolean
+M.has_empty_foldtext = function(bufnr)
+    if vim.fn.has "nvim-0.10" == 0 then
+        return false
+    end
+    local win = M.get_win(bufnr)
+    if not win then
+        return false
+    end
+    return vim.api.nvim_get_option_value("foldtext", { win = win }) == ""
+end
+
+---@param bufnr number
 ---@param config ibl.config
 M.is_buffer_active = function(bufnr, config)
     for _, filetype in ipairs(M.get_filetypes(bufnr)) do
@@ -424,11 +438,8 @@ end
 ---@vararg T
 ---@return T
 M.tbl_join = function(...)
-    local result = {}
-    for i, v in ipairs(vim.tbl_flatten { ... }) do
-        result[i] = v
-    end
-    return result
+    ---@diagnostic disable-next-line: deprecated
+    return vim.iter and vim.iter({ ... }):flatten():totable() or vim.tbl_flatten { ... }
 end
 
 ---@generic T

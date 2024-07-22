@@ -51,6 +51,11 @@ Nvim sets some default options whenever a buffer attaches to an LSP client. See 
 
 Nvim also maps `K` to [`vim.lsp.buf.hover()`][vim.lsp.buf.hover] in Normal mode.
 
+Nvim 0.10 and newer creates the following default maps unconditionally:
+
+* `[d` and `]d` map to `vim.diagnostic.goto_prev()` and `vim.diagnostic.goto_next()` (respectively)
+* `<C-W>d` maps to `vim.diagnostic.open_float()`
+
 [lsp-config]: https://neovim.io/doc/user/lsp.html#lsp-config
 [tagfunc]: https://neovim.io/doc/user/tagsrch.html#tag-function
 [omnifunc]: https://neovim.io/doc/user/options.html#'omnifunc'
@@ -60,36 +65,14 @@ Nvim also maps `K` to [`vim.lsp.buf.hover()`][vim.lsp.buf.hover] in Normal mode.
 [tagjump]: https://neovim.io/doc/user/tagsrch.html#CTRL-%5D
 [tag-commands]: https://neovim.io/doc/user/tagsrch.html#tag-commands
 
-Further customization can be achieved using the [`LspAttach`][LspAttach] autocommand event. Example:
-
-[LspAttach]: https://neovim.io/doc/user/lsp.html#LspAttach
-
-
-```lua
-vim.api.nvim_create_autocmd('LspAttach', {
-  callback = function(args)
-    vim.keymap.set('n', 'crr', vim.lsp.buf.rename, { buffer = args.buf })
-    vim.keymap.set({ 'n', 'v' }, '<space>ca', vim.lsp.buf.code_action, { buffer = args.buf })
-    vim.keymap.set('n', 'gr', vim.lsp.buf.references, { buffer = args.buf })
-  end,
-})
-```
-
+Further customization can be achieved using the [`LspAttach`][LspAttach] autocommand event.
+The [`LspDetach`][LspAttach] autocommand event can be used to "cleanup" mappings if a buffer becomes detached from an LSP server.
+See [`:h LspAttach`][LspAttach] and [`:h LspDetach`][LspDetach] for details and examples.
 See [`:h lsp-buf`][lsp-buf] for details on other LSP functions.
 
+[LspAttach]: https://neovim.io/doc/user/lsp.html#LspAttach
+[LspDetach]: https://neovim.io/doc/user/lsp.html#LspDetach
 [lsp-buf]: https://neovim.io/doc/user/lsp.html#lsp-buf
-
-The [`LspDetach`][LspAttach] autocommand event can be used to "cleanup" mappings if a buffer becomes detached from an LSP server:
-
-```lua
-vim.api.nvim_create_autocmd('LspDetach', {
-  callback = function(args)
-    vim.keymap.del('n', 'crr', { buffer = args.buf })
-    vim.keymap.set({ 'n', 'v' }, '<space>ca', { buffer = args.buf })
-    vim.keymap.set('n', 'gr', { buffer = args.buf })
-  end,
-})
-```
 
 Additional configuration options can be provided for each LSP server by passing arguments to the `setup` function. See `:h lspconfig-setup` for details. Example:
 
@@ -112,7 +95,7 @@ The most common reasons a language server does not start or attach are:
 1. The language server is not installed. nvim-lspconfig does not install language servers for you. You should be able to run the `cmd` defined in each server's Lua module from the command line and see that the language server starts. If the `cmd` is an executable name instead of an absolute path to the executable, ensure it is on your path.
 2. Missing filetype plugins. Certain languages are not detecting by vim/neovim because they have not yet been added to the filetype detection system. Ensure `:set ft?` shows the filetype and not an empty value.
 3. Not triggering root detection. **Some** language servers will only start if it is opened in a directory, or child directory, containing a file which signals the *root* of the project. Most of the time, this is a `.git` folder, but each server defines the root config in the lua file. See [server_configurations.md](doc/server_configurations.md) or the source for the list of root directories.
-4. You must pass `on_attach` and `capabilities` for **each** `setup {}` if you want these to take effect.
+4. You must pass `capabilities` for **each** `setup {}` if you want these to take effect.
 5. **Do not call `setup {}` twice for the same server**. The second call to `setup {}` will overwrite the first.
 
 Before reporting a bug, check your logs and the output of `:LspInfo`. Add the following to your init.vim to enable logging:

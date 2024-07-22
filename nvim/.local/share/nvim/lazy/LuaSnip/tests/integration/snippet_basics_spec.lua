@@ -8,7 +8,7 @@ describe("snippets_basic", function()
 
 	before_each(function()
 		ls_helpers.clear()
-		ls_helpers.session_setup_luasnip()
+		ls_helpers.session_setup_luasnip({ setup_parsers = true })
 
 		screen = Screen.new(50, 3)
 		screen:attach()
@@ -188,7 +188,9 @@ describe("snippets_basic", function()
 			{ "a[]ab" }
 		)
 		exec_lua("ls.snip_expand(" .. snip .. ")")
+		exec_lua("vim.wait(10, function() end)")
 		exec_lua("ls.snip_expand(" .. snip .. ")")
+		exec_lua("vim.wait(10, function() end)")
 		screen:expect({
 			grid = [[
 			a[a[^]ab]ab                                        |
@@ -1326,6 +1328,108 @@ describe("snippets_basic", function()
 		})
 	end)
 
+	it(
+		"exit_roots exits when the last node of snippet-root is reached.",
+		function()
+			exec_lua([[
+			ls.setup({
+				exit_roots = true
+			})
+			ls.add_snippets("all", {
+			s("aa", { t{"( "}, i(1, "1"), t{" )"}, i(0, "0") })
+			})
+		]])
+
+			feed("iaa")
+			exec_lua("ls.expand()")
+			screen:expect({
+				grid = [[
+			( ^1 )0                                            |
+			{0:~                                                 }|
+			{2:-- SELECT --}                                      |]],
+			})
+			feed("aa")
+			exec_lua("ls.expand()")
+			screen:expect({
+				grid = [[
+			( ( ^1 )0 )0                                       |
+			{0:~                                                 }|
+			{2:-- SELECT --}                                      |]],
+			})
+			-- verify we do not exit when reaching to a child root
+			exec_lua("ls.jump(1) ls.jump(-1)")
+			screen:expect({
+				grid = [[
+			( ( ^1 )0 )0                                       |
+			{0:~                                                 }|
+			{2:-- SELECT --}                                      |]],
+			})
+			-- be sure that reaching root $0 exits.
+			exec_lua("ls.jump(1) ls.jump(1) ls.jump(-1)")
+			screen:expect({
+				grid = [[
+			( ( 1 )0 )^0                                       |
+			{0:~                                                 }|
+			{2:-- SELECT --}                                      |]],
+			})
+		end
+	)
+	it("exit_roots = false stays in the root node but exits child.", function()
+		exec_lua([[
+			ls.setup({
+				exit_roots = false
+			})
+			ls.add_snippets("all", {
+			s("aa", { t{"( "}, i(1, "1"), t{" )"}, i(0, "0") })
+			})
+		]])
+
+		feed("iaa")
+		exec_lua("ls.expand()")
+		screen:expect({
+			grid = [[
+			( ^1 )0                                            |
+			{0:~                                                 }|
+			{2:-- SELECT --}                                      |]],
+		})
+		-- screen:snapshot_util()
+		feed("aa")
+		exec_lua("ls.expand()")
+		screen:expect({
+			grid = [[
+			( ( ^1 )0 )0                                       |
+			{0:~                                                 }|
+			{2:-- SELECT --}                                      |]],
+		})
+		-- do not exit when reaching to a child root
+		exec_lua("ls.jump(1) ls.jump(-1)")
+		screen:expect({
+			grid = [[
+			( ( ^1 )0 )0                                       |
+			{0:~                                                 }|
+			{2:-- SELECT --}                                      |]],
+		})
+		-- root $0 does not exit.
+		exec_lua("ls.jump(1) ls.jump(1) ls.jump(-1)")
+		screen:expect({
+			grid = [[
+			( ^({3: 1 )0} )0                                       |
+			{0:~                                                 }|
+			{2:-- SELECT --}                                      |]],
+		})
+		-- new root snippet exits earlier root.
+		exec_lua("ls.jump(1)")
+		feed("aa")
+		exec_lua("ls.expand()")
+		exec_lua("ls.jump(-1) ls.jump(-1)")
+		screen:expect({
+			grid = [[
+			( ( 1 )0 )^( 1 )0                                  |
+			{0:~                                                 }|
+			{2:-- INSERT --}                                      |]],
+		})
+	end)
+
 	it("focus correctly adjusts gravities of parent-snippets.", function()
 		exec_lua([[
 			ls.setup{
@@ -1494,5 +1598,32 @@ describe("snippets_basic", function()
 		assert.are.same(true, exec_lua("return enter_snode"))
 		assert.are.same(true, exec_lua("return enter_snode_m1"))
 		assert.are.same(true, exec_lua("return enter_snode_via_parent"))
+	end)
+
+	it("Correct filetype is recognized via treesitter.", function()
+		exec_lua([=[
+			ls.setup({
+				ft_func = require("luasnip.extras.filetype_functions").from_cursor_pos
+			})
+			ls.add_snippets("lua", {
+				s("asdf", t[[print("qwer")]])
+			})
+		]=])
+		exec("set ft=lua")
+		feed([[ilocal function a()  end<Esc>hhhi]])
+		screen:expect({
+			grid = [[
+			  local function a() ^ end                           |
+			  {0:~                                                 }|
+			  {2:-- INSERT --}                                      |]],
+		})
+		feed([[asdf]])
+		exec_lua("ls.expand()")
+		screen:expect({
+			grid = [[
+			  local function a() print("qwer")^ end              |
+			  {0:~                                                 }|
+			  {2:-- INSERT --}                                      |]],
+		})
 	end)
 end)

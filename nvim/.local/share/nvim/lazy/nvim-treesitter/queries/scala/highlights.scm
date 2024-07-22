@@ -120,6 +120,9 @@
 (binding
   name: (identifier) @variable.parameter)
 
+(lambda_expression
+  parameters: (identifier) @variable.parameter)
+
 ; expressions
 (field_expression
   field: (identifier) @variable.member)
@@ -170,8 +173,6 @@
 
 [
   "case"
-  "class"
-  "enum"
   "extends"
   "derives"
   "finally"
@@ -179,9 +180,6 @@
   ; `macro` not implemented yet
   "object"
   "override"
-  "package"
-  "trait"
-  "type"
   "val"
   "var"
   "with"
@@ -192,6 +190,13 @@
   "extension"
   "with"
 ] @keyword
+
+[
+  "enum"
+  "class"
+  "trait"
+  "type"
+] @keyword.type
 
 [
   "abstract"
@@ -207,6 +212,8 @@
 (null_literal) @constant.builtin
 
 (wildcard) @variable.parameter
+
+(namespace_wildcard) @punctuation.special
 
 (annotation) @attribute
 
@@ -232,6 +239,7 @@
 [
   "."
   ","
+  ":"
 ] @punctuation.delimiter
 
 [
@@ -245,6 +253,9 @@
 
 [
   "=>"
+  "?=>"
+  "="
+  "!"
   "<-"
   "@"
 ] @operator
@@ -252,6 +263,7 @@
 [
   "import"
   "export"
+  "package"
 ] @keyword.import
 
 [
@@ -274,6 +286,10 @@
 (case_block
   (case_clause
     "case" @keyword.conditional))
+
+(case_block
+  (case_clause
+    "=>" @punctuation.delimiter))
 
 (operator_identifier) @operator
 

@@ -2,73 +2,102 @@
 
 --# selene: allow(unused_variable)
 
----@class Keymap
----@field rhs string
----@field lhs string
----@field buffer number
----@field expr number
----@field lnum number
----@field mode string
----@field noremap number
----@field nowait number
----@field script number
----@field sid number
----@field silent number
----@field callback fun()|nil
----@field id string terminal keycodes for lhs
----@field desc string
-
----@class KeyCodes
----@field keys string
----@field internal string[]
----@field notation string[]
-
----@class MappingOptions
----@field noremap boolean
----@field silent boolean
----@field nowait boolean
----@field expr boolean
-
----@class Mapping
----@field buf number
----@field group boolean
----@field label string
----@field desc string
----@field prefix string
----@field cmd string
----@field opts MappingOptions
----@field keys KeyCodes
+---@class wk.Filter
 ---@field mode? string
----@field callback fun()|nil
----@field preset boolean
----@field plugin string
----@field fn fun()
-
----@class MappingTree
----@field mode string
 ---@field buf? number
----@field tree Tree
+---@field keys? string
+---@field global? boolean
+---@field local? boolean
+---@field update? boolean
+---@field delay? number
+---@field loop? boolean
 
----@class VisualMapping : Mapping
+---@class wk.Icon
+---@field icon? string
+---@field hl? string
+---@field cat? "file" | "filetype" | "extension"
+---@field name? string
+---@field color? false | "azure" | "blue" | "cyan" | "green" | "grey" | "orange" | "purple" | "red" | "yellow"
+
+---@class wk.IconProvider
+---@field name string
+---@field available? boolean
+---@field get fun(icon: wk.Icon):(icon: string?, hl: string?)
+
+---@class wk.IconRule: wk.Icon
+---@field pattern? string
+---@field plugin? string
+
+---@class wk.Keymap: vim.api.keyset.keymap
+---@field lhs string
+---@field mode string
+---@field rhs? string|fun()
+---@field lhsraw? string
+---@field buffer? number
+
+---@class wk.Mapping: wk.Keymap
+---@field idx? number
+---@field plugin? string
+---@field group? boolean
+---@field remap? boolean
+---@field hidden? boolean
+---@field preset? boolean
+---@field icon? wk.Icon|string
+
+---@class wk.Spec: {[number]: wk.Spec} , wk.Mapping
+---@field [1]? string
+---@field [2]? string|fun()
+---@field lhs? string
+---@field group? string
+---@field buffer? number|boolean
+---@field mode? string|string[]
+---@field cond? boolean|fun():boolean?
+
+---@class wk.Win: vim.api.keyset.win_config
+---@field width? wk.Dim
+---@field height? wk.Dim
+---@field wo? vim.wo
+---@field bo? vim.bo
+---@field padding? {[1]: number, [2]:number}
+---@field no_overlap? boolean
+
+---@class wk.Col
 ---@field key string
----@field highlights table
----@field value string
+---@field hl? string
+---@field width? number
+---@field padding? number[]
+---@field default? string
+---@field align? "left"|"right"|"center"
 
----@class PluginItem
+---@class wk.Table.opts
+---@field cols wk.Col[]
+---@field rows table<string, string>[]
+
+---@class wk.Plugin.item
 ---@field key string
----@field label string
 ---@field value string
----@field cmd string
----@field highlights table
+---@field desc string
+---@field order? number
+---@field action? fun()
 
----@class PluginAction
+---@class wk.Plugin.action
 ---@field trigger string
 ---@field mode string
 ---@field label? string
 ---@field delay? boolean
 
----@class Plugin
+---@class wk.Plugin
 ---@field name string
----@field actions PluginAction[]
----@field run fun(trigger:string, mode:string, buf:number):PluginItem[]
----@field setup fun(wk, opts, Options)
+---@field cols? wk.Col[]
+---@field actions wk.Plugin.action[]
+---@field expand fun():wk.Plugin.item[]
+---@field setup fun(opts: table<string, any>)
+
+---@class wk.Item: wk.Node
+---@field node wk.Node
+---@field key string
+---@field desc string
+---@field group? boolean
+---@field order? number
+---@field icon? string
+---@field icon_hl? string

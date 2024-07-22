@@ -12,6 +12,7 @@
   (switch_block)
   (match_block)
   (case_statement)
+  (default_statement)
 ] @indent.begin
 
 (return_statement
@@ -21,9 +22,6 @@
     (arrow_function)
     (match_expression)
   ]) @indent.dedent
-
-(member_call_expression
-  object: (member_call_expression) @indent.branch)
 
 [
   ")"
@@ -40,6 +38,12 @@
   ")" @indent.end)
 
 (compound_statement
+  "}" @indent.end)
+
+(declaration_list
+  "}" @indent.end)
+
+(enum_declaration_list
   "}" @indent.end)
 
 (return_statement

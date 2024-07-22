@@ -71,7 +71,7 @@
 
 (theorem_definition
   command: _ @function.macro
-  name: (curly_group_text
+  name: (curly_group_text_list
     (_) @label))
 
 (paired_delimiter_definition
@@ -252,12 +252,10 @@
     (_) @markup.strong))
   (#any-of? @_name "\\textbf" "\\mathbf"))
 
-((generic_command
-  command: (command_name) @_name
-  .
-  arg: (curly_group
-    (_) @markup.link.url))
-  (#any-of? @_name "\\url" "\\href"))
+(hyperlink
+  command: _ @function @nospell
+  uri: (curly_group_uri
+    (_) @markup.link.url @nospell))
 
 ; File inclusion commands
 (class_include
@@ -332,8 +330,8 @@
   (comment_environment)
 ] @comment @spell
 
-((line_comment) @keyword.directive
+((line_comment) @keyword.directive @nospell
   (#lua-match? @keyword.directive "^%% !TeX"))
 
-((line_comment) @keyword.directive
+((line_comment) @keyword.directive @nospell
   (#lua-match? @keyword.directive "^%%&"))

@@ -14,7 +14,7 @@ function killbyname() {
     process_name=$1
     pids=$(ps -A | grep $process_name | grep -v grep | awk '{print $1}')
     if [ -z "$pids" ]; then
-        echo " '$process_name'"
+        echo "'$process_name' not found in running proccesses"
         return 1
     fi
     echo "killing the following processes:"
@@ -54,10 +54,6 @@ function datefile() {
   
   catall | grep -E '\b[0-9]{4}\b' > "$filename"
 }
-function mkdir() {
-  /bin/mkdir $1 
-  cd $1
-}
 function qemuconv() {
   if [ -z "$1"]; then
     echo "Usage: qemuconv <filename>"
@@ -79,4 +75,8 @@ function qemuconv() {
 }
 function merge_files() {
   python $HOME/pent/python/merge_files.py
+}
+function zdel() {
+  zellij ka >/dev/null
+  zellij da >/dev/null
 }

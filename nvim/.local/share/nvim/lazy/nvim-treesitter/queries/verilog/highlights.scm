@@ -6,10 +6,6 @@
   "endmodule"
   "program"
   "endprogram"
-  "class"
-  "endclass"
-  "interface"
-  "endinterface"
   "package"
   "endpackage"
   "checker"
@@ -26,7 +22,6 @@
   "localparam"
   "defparam"
   "assign"
-  "typedef"
   "modport"
   "fork"
   "join"
@@ -39,6 +34,17 @@
   "extern"
   (unique_priority)
 ] @keyword
+
+[
+  "class"
+  "endclass"
+  "interface"
+  "endinterface"
+  "enum"
+  "struct"
+  "union"
+  "typedef"
+] @keyword.type
 
 [
   "function"
@@ -90,9 +96,6 @@
   (package_identifier
     (simple_identifier) @constant))
 
-(parameter_port_list
-  "#" @constructor)
-
 [
   "="
   "-"
@@ -104,12 +107,9 @@
   "|"
   "&&"
   "||"
-  ":"
-  "{"
-  "}"
-  "'{"
   "<="
   "@"
+  "@*"
   "=="
   "!="
   "==="
@@ -124,7 +124,11 @@
   "|="
   (unary_operator)
   (inc_or_dec_operator)
+  "#"
 ] @operator
+
+(parameter_port_list
+  "#" @constructor)
 
 [
   "or"
@@ -154,6 +158,8 @@
 [
   "signed"
   "unsigned"
+  "input"
+  "output"
 ] @keyword.modifier
 
 (data_type
@@ -191,9 +197,16 @@
 [
   ";"
   "::"
+  ":"
   ","
   "."
 ] @punctuation.delimiter
+
+(conditional_expression
+  [
+    "?"
+    ":"
+  ] @keyword.conditional.ternary)
 
 (default_nettype_compiler_directive
   (default_nettype_value) @string)
@@ -217,7 +230,7 @@
   (unbased_unsized_literal)
 ] @number
 
-(time_unit) @attribute
+(time_unit) @type.builtin
 
 (checker_instantiation
   (checker_identifier
@@ -265,10 +278,6 @@
   (data_type
     "packed" @keyword.modifier))
 
-(struct_union) @type
-
-"enum" @type
-
 (enum_name_declaration
   (enum_identifier
     (simple_identifier) @constant))
@@ -305,4 +314,7 @@
   "]"
   "("
   ")"
+  "{"
+  "}"
+  "'{"
 ] @punctuation.bracket

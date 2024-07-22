@@ -124,7 +124,7 @@ end, true)
 ---@param _bufnr integer
 ---@param pred string[]
 ---@return boolean|nil
-query.add_predicate("has-type?", function(match, _pattern, _bufnr, pred)
+query.add_predicate("kind-eq?", function(match, _pattern, _bufnr, pred)
   if not valid_args(pred[1], pred, 2) then
     return
   end
@@ -171,7 +171,7 @@ query.add_directive("set-lang-from-info-string!", function(match, _, bufnr, pred
   if not node then
     return
   end
-  local injection_alias = vim.treesitter.get_node_text(node, bufnr)
+  local injection_alias = vim.treesitter.get_node_text(node, bufnr):lower()
   metadata["injection.language"] = get_parser_from_markdown_info_string(injection_alias)
 end, true)
 

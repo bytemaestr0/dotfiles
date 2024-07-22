@@ -1,4 +1,5 @@
 export PATH=$PATH:/home/elliot/.spicetify
+export PATH=$PATH:~/.cargo/bin/
 export QSG_RENDER_LOOP=basic
 export ZSH="$HOME/.oh-my-zsh/"
 export DOTFILES="$HOME/dotfiles/"
@@ -7,7 +8,7 @@ export ZSHCONF="$HOME/.zsh/"
 export MAVEN="$HOME/pent/maven/"
 export SCRIPTS="$HOME/pent/scripts/"
 ZSH_DISABLE_COMPFIX="true"
-ZSH_THEME="custom_endy"
+ZSH_THEME="classyTouch"
 DISABLE_LS_COLORS="true"
 plugins=(
   zsh-navigation-tools
@@ -20,3 +21,4 @@ source $HOME/.zsh/aliases.sh
 source $HOME/.zsh/functions.sh
 #omz shell:
 source $ZSH/oh-my-zsh.sh
+

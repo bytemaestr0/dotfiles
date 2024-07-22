@@ -1,3 +1,11 @@
+-- All credits to @lucario as he has made all of this type stuff
+
+local chadrc = pcall(require, "chadrc")
+
+if not chadrc then
+  package.loaded.chadrc = {}
+end
+
 local normalize = vim.fs.normalize
 local fnamemodify = vim.fn.fnamemodify
 -- local nvchad_types_fp = vim.fs.normalize(vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h"))
@@ -61,7 +69,7 @@ local gen_highlights = function()
     "",
     "---@class Base46HLGroupsList: HLGroups, ExtendedHLGroups",
     "",
-    "---@alias ExtendedModules",
+    "---@alias Base46Integrations",
   }
   local hlgroups = {}
   local ignored_files = {
@@ -74,11 +82,11 @@ local gen_highlights = function()
   }
 
   for name, _ in vim.fs.dir(
-    normalize(base46_fp .. "/extended_integrations")
+    normalize(base46_fp .. "/integrations")
   ) do
     local base_name = get_base_name(name)
     ---@type table<string, Base46HLGroups>
-    local groups = require("base46.extended_integrations." .. base_name)
+    local groups = require("base46.integrations." .. base_name)
     table.insert(contents, string.format("---| \"'%s'\"", base_name))
     for hlname, _ in vim.spairs(groups) do
       if not hlgroups[hlname] then

@@ -4,7 +4,7 @@ layout {
         plugin location="tab-bar"
     }
     pane split_direction="vertical" {
-        pane cwd="$HOME/"
+        pane
         pane split_direction="horizontal" {
             pane size="48%"
             pane

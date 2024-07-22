@@ -102,7 +102,8 @@ local function get_file_snippets(file)
 
 		-- vscode documents `,`, but `.` also works.
 		-- an entry `false` in this list will cause a `ft=nil` for the snippet.
-		local filetypes = parts.scope and vim.split(parts.scope, "[.,]")
+		local filetypes = parts.scope
+				and loader_util.scopestring_to_filetypes(parts.scope)
 			or { false }
 
 		local contexts = {}
@@ -434,14 +435,13 @@ local function get_manifests(paths)
 		-- Get path to package.json/package.jsonc, or continue if it does not exist.
 		for _, dir in ipairs(paths) do
 			local tentative_manifest_path =
-				Path.expand(Path.join(dir, "package.json"))
-			-- expand returns nil for paths that don't exist.
-			if tentative_manifest_path then
+				Path.expand_keep_symlink(Path.join(dir, "package.json"))
+			if Path.exists(tentative_manifest_path) then
 				table.insert(manifest_paths, tentative_manifest_path)
 			else
 				tentative_manifest_path =
-					Path.expand(Path.join(dir, "package.jsonc"))
-				if tentative_manifest_path then
+					Path.expand_keep_symlink(Path.join(dir, "package.jsonc"))
+				if Path.exists(tentative_manifest_path) then
 					table.insert(manifest_paths, tentative_manifest_path)
 				else
 					log.warn(

@@ -1,5 +1,60 @@
 # Changelog
 
+## [1.5.0](https://github.com/nvim-tree/nvim-tree.lua/compare/nvim-tree-v1.4.0...nvim-tree-v1.5.0) (2024-07-11)
+
+
+### Features
+
+* **#2127:** add experimental.actions.open_file.relative_path to open files with a relative path rather than absolute ([#2805](https://github.com/nvim-tree/nvim-tree.lua/issues/2805)) ([869c064](https://github.com/nvim-tree/nvim-tree.lua/commit/869c064721a6c2091f22c3541e8f0ff958361771))
+* **#2598:** add api.tree.resize ([#2811](https://github.com/nvim-tree/nvim-tree.lua/issues/2811)) ([2ede0de](https://github.com/nvim-tree/nvim-tree.lua/commit/2ede0de67b47e89e2b4cb488ea3f58b8f5a8c90a))
+* **#2799:** `filesystem_watchers.ignore_dirs` and `git.disable_for_dirs` may be functions ([#2800](https://github.com/nvim-tree/nvim-tree.lua/issues/2800)) ([8b2c5c6](https://github.com/nvim-tree/nvim-tree.lua/commit/8b2c5c678be4b49dff6a2df794877000113fd77b))
+* **#2799:** filesystem_watchers.ignore_dirs and git.disable_for_dirs may be functions ([8b2c5c6](https://github.com/nvim-tree/nvim-tree.lua/commit/8b2c5c678be4b49dff6a2df794877000113fd77b))
+
+
+### Bug Fixes
+
+* **#2813:** macos: enable file renaming with changed capitalization ([#2814](https://github.com/nvim-tree/nvim-tree.lua/issues/2814)) ([abfd1d1](https://github.com/nvim-tree/nvim-tree.lua/commit/abfd1d1b6772540364743531cc0331e08a0027a9))
+* **#2819:** experimental.actions.open_file.relative_path issue following change directory ([#2820](https://github.com/nvim-tree/nvim-tree.lua/issues/2820)) ([12a9a99](https://github.com/nvim-tree/nvim-tree.lua/commit/12a9a995a455d2c2466e47140663275365a5d2fc))
+
+## [1.4.0](https://github.com/nvim-tree/nvim-tree.lua/compare/nvim-tree-v1.3.3...nvim-tree-v1.4.0) (2024-06-09)
+
+### Notice
+
+* Neovim 0.9 is now the minimum supported version; please upgrade to neovim release version 0.9 or 0.10.
+
+### Reverts
+
+* **#2781:** "refactor: replace deprecated use of vim.diagnostic.is_disabled()" ([#2784](https://github.com/nvim-tree/nvim-tree.lua/issues/2784)) ([517e4fb](https://github.com/nvim-tree/nvim-tree.lua/commit/517e4fbb9ef3c0986da7047f44b4b91a2400f93c))
+
+
+### Miscellaneous Chores
+
+* release 1.4.0 ([1cac800](https://github.com/nvim-tree/nvim-tree.lua/commit/1cac8005df6da484c97499247754afa59fef92db))
+
+## [1.3.3](https://github.com/nvim-tree/nvim-tree.lua/compare/nvim-tree-v1.3.2...nvim-tree-v1.3.3) (2024-05-14)
+
+
+### Bug Fixes
+
+* nil access exception with git integration when changing branches ([#2774](https://github.com/nvim-tree/nvim-tree.lua/issues/2774)) ([340d3a9](https://github.com/nvim-tree/nvim-tree.lua/commit/340d3a9795e06bdd1814228de398cd510f9bfbb0))
+
+## [1.3.2](https://github.com/nvim-tree/nvim-tree.lua/compare/nvim-tree-v1.3.1...nvim-tree-v1.3.2) (2024-05-12)
+
+
+### Bug Fixes
+
+* **#2758:** use nvim-webdevicons default file icon, not renderer.icons.glyphs.default, as per :help ([#2759](https://github.com/nvim-tree/nvim-tree.lua/issues/2759)) ([347e1eb](https://github.com/nvim-tree/nvim-tree.lua/commit/347e1eb35264677f66a79466bb5e3d111968e12c))
+* **#2758:** use nvim-webdevicons default for default files ([347e1eb](https://github.com/nvim-tree/nvim-tree.lua/commit/347e1eb35264677f66a79466bb5e3d111968e12c))
+* **#925:** handle newlines in file names ([#2754](https://github.com/nvim-tree/nvim-tree.lua/issues/2754)) ([64f61e4](https://github.com/nvim-tree/nvim-tree.lua/commit/64f61e4c913047a045ff90bd188dd3b54ee443cf))
+
+## [1.3.1](https://github.com/nvim-tree/nvim-tree.lua/compare/nvim-tree-v1.3.0...nvim-tree-v1.3.1) (2024-04-25)
+
+
+### Bug Fixes
+
+* **#2535:** TextYankPost event sends vim.v.event ([#2734](https://github.com/nvim-tree/nvim-tree.lua/issues/2734)) ([d8d3a15](https://github.com/nvim-tree/nvim-tree.lua/commit/d8d3a1590a05b2d8b5eb26e2ed1c6052b1b47a77))
+* **#2733:** escape trash path ([#2735](https://github.com/nvim-tree/nvim-tree.lua/issues/2735)) ([81eb8d5](https://github.com/nvim-tree/nvim-tree.lua/commit/81eb8d519233c105f30dc0a278607e62b20502fd))
+
 ## [1.3.0](https://github.com/nvim-tree/nvim-tree.lua/compare/nvim-tree-v1.2.0...nvim-tree-v1.3.0) (2024-03-30)
 
 

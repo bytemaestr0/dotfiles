@@ -1,350 +1,443 @@
-local Keys = require("which-key.keys")
-local config = require("which-key.config")
+local Config = require("which-key.config")
+local Icons = require("which-key.icons")
 local Layout = require("which-key.layout")
+local Plugins = require("which-key.plugins")
+local State = require("which-key.state")
+local Tree = require("which-key.tree")
 local Util = require("which-key.util")
 
-local highlight = vim.api.nvim_buf_add_highlight
-
----@class View
 local M = {}
+M.buf = nil ---@type number
+M.win = nil ---@type number
+M.timer = (vim.uv or vim.loop).new_timer()
 
-M.keys = ""
-M.mode = "n"
-M.reg = nil
-M.auto = false
-M.count = 0
-M.buf = nil
-M.win = nil
+---@alias wk.Sorter fun(node:wk.Item): (string|number)
 
-function M.is_valid()
-  return M.buf
-    and M.win
-    and vim.api.nvim_buf_is_valid(M.buf)
-    and vim.api.nvim_buf_is_loaded(M.buf)
-    and vim.api.nvim_win_is_valid(M.win)
+---@type table<string, wk.Sorter>
+M.fields = {
+  order = function(item)
+    return item.order and item.order or 1000
+  end,
+  ["local"] = function(item)
+    return item.keymap and item.keymap.buffer ~= 0 and 0 or 1000
+  end,
+  manual = function(item)
+    return item.mapping and item.mapping.idx or 10000
+  end,
+  desc = function(item)
+    return item.desc or "~"
+  end,
+  group = function(item)
+    return item.group and 1 or 0
+  end,
+  alphanum = function(item)
+    return item.key:find("^%w+$") and 0 or 1
+  end,
+  mod = function(item)
+    return item.key:find("^<.*>$") and 0 or 1
+  end,
+  lower = function(item)
+    return item.key:lower()
+  end,
+  icase = function(item)
+    return item.key:lower() == item.key and 0 or 1
+  end,
+}
+
+---@param key string
+function M.format(key)
+  local inner = key:match("^<(.*)>$")
+  if not inner then
+    return key
+  end
+  local parts = vim.split(inner, "-", { plain = true })
+  parts[1] = Config.icons.keys[parts[1]] or parts[1]
+  if parts[2] and not parts[2]:match("^%w$") then
+    parts[2] = Config.icons.keys[parts[2]] or parts[2]
+  end
+  return table.concat(parts, "")
 end
 
-function M.show()
-  if vim.b.visual_multi then
-    vim.b.VM_skip_reset_once_on_bufleave = true
-  end
-  if M.is_valid() then
+---@param nodes wk.Item[]
+---@param fields (string|wk.Sorter)[]
+function M.sort(nodes, fields)
+  table.sort(nodes, function(a, b)
+    for _, f in ipairs(fields) do
+      local field = type(f) == "function" and f or M.fields[f]
+      if field then
+        local aa = field(a)
+        local bb = field(b)
+        if aa ~= bb then
+          return aa < bb
+        end
+      end
+    end
+    return a.key < b.key
+  end)
+end
+
+function M.valid()
+  return M.buf and vim.api.nvim_buf_is_valid(M.buf) and M.win and vim.api.nvim_win_is_valid(M.win) or false
+end
+
+---@param opts? {delay?: number, schedule?: boolean, waited?: number}
+function M.update(opts)
+  local state = State.state
+
+  if not state then
+    M.hide()
     return
   end
 
-  -- non-floating windows
-  local wins = vim.tbl_filter(function(w)
-    return vim.api.nvim_win_is_valid(w) and vim.api.nvim_win_get_config(w).relative == ""
-  end, vim.api.nvim_list_wins())
-
-  ---@type number[]
-  local margins = {}
-  for i, m in ipairs(config.options.window.margin) do
-    if m > 0 and m < 1 then
-      if i % 2 == 0 then
-        m = math.floor(vim.o.columns * m)
-      else
-        m = math.floor(vim.o.lines * m)
-      end
-    end
-    margins[i] = m
+  opts = opts or {}
+  if M.valid() then
+    M.show()
+  elseif opts.schedule ~= false then
+    local delay = opts.delay
+      or State.delay({
+        mode = state.mode.mode,
+        keys = state.node.keys,
+        plugin = state.node.plugin,
+        waited = opts.waited,
+      })
+    M.timer:start(
+      delay,
+      0,
+      vim.schedule_wrap(function()
+        Util.try(M.show)
+      end)
+    )
   end
-
-  local opts = {
-    relative = "editor",
-    width = vim.o.columns
-      - margins[2]
-      - margins[4]
-      - (vim.fn.has("nvim-0.6") == 0 and config.options.window.border ~= "none" and 2 or 0),
-    height = config.options.layout.height.min,
-    focusable = false,
-    anchor = "SW",
-    border = config.options.window.border,
-    row = vim.o.lines
-      - margins[3]
-      - (vim.fn.has("nvim-0.6") == 0 and config.options.window.border ~= "none" and 2 or 0)
-      + ((vim.o.laststatus == 0 or vim.o.laststatus == 1 and #wins == 1) and 1 or 0)
-      - vim.o.cmdheight,
-    col = margins[4],
-    style = "minimal",
-    noautocmd = true,
-    zindex = config.options.window.zindex,
-  }
-  if config.options.window.position == "top" then
-    opts.anchor = "NW"
-    opts.row = margins[1]
-  end
-  M.buf = vim.api.nvim_create_buf(false, true)
-  M.win = vim.api.nvim_open_win(M.buf, false, opts)
-  vim.api.nvim_buf_set_option(M.buf, "filetype", "WhichKey")
-  vim.api.nvim_buf_set_option(M.buf, "buftype", "nofile")
-  vim.api.nvim_buf_set_option(M.buf, "bufhidden", "wipe")
-  vim.api.nvim_buf_set_option(M.buf, "modifiable", true)
-
-  local winhl = "NormalFloat:WhichKeyFloat"
-  if vim.fn.hlexists("FloatBorder") == 1 then
-    winhl = winhl .. ",FloatBorder:WhichKeyBorder"
-  end
-  vim.api.nvim_win_set_option(M.win, "winhighlight", winhl)
-  vim.api.nvim_win_set_option(M.win, "foldmethod", "manual")
-  vim.api.nvim_win_set_option(M.win, "winblend", config.options.window.winblend)
-end
-
-function M.read_pending()
-  local esc = ""
-  while true do
-    local n = vim.fn.getchar(0)
-    if n == 0 then
-      break
-    end
-    local c = (type(n) == "number" and vim.fn.nr2char(n) or n)
-
-    -- HACK: for some reason, when executing a :norm command,
-    -- vim keeps feeding <esc> at the end
-    if c == Util.t("<esc>") then
-      esc = esc .. c
-      -- more than 10 <esc> in a row? most likely the norm bug
-      if #esc > 10 then
-        return
-      end
-    else
-      -- we have <esc> characters, so add them to keys
-      if esc ~= "" then
-        M.keys = M.keys .. esc
-        esc = ""
-      end
-      M.keys = M.keys .. c
-    end
-  end
-  if esc ~= "" then
-    M.keys = M.keys .. esc
-    esc = ""
-  end
-end
-
-function M.getchar()
-  local ok, n = pcall(vim.fn.getchar)
-
-  -- bail out on keyboard interrupt
-  if not ok then
-    return Util.t("<esc>")
-  end
-
-  local c = (type(n) == "number" and vim.fn.nr2char(n) or n)
-  return c
-end
-
-function M.scroll(up)
-  local height = vim.api.nvim_win_get_height(M.win)
-  local cursor = vim.api.nvim_win_get_cursor(M.win)
-  if up then
-    cursor[1] = math.max(cursor[1] - height, 1)
-  else
-    cursor[1] = math.min(cursor[1] + height, vim.api.nvim_buf_line_count(M.buf))
-  end
-  vim.api.nvim_win_set_cursor(M.win, cursor)
-end
-
-function M.on_close()
-  M.hide()
 end
 
 function M.hide()
-  vim.api.nvim_echo({ { "" } }, false, {})
-  M.hide_cursor()
-  if M.buf and vim.api.nvim_buf_is_valid(M.buf) then
-    vim.api.nvim_buf_delete(M.buf, { force = true })
-    M.buf = nil
-  end
-  if M.win and vim.api.nvim_win_is_valid(M.win) then
-    vim.api.nvim_win_close(M.win, true)
-    M.win = nil
-  end
-  vim.cmd("redraw")
-end
-
-function M.show_cursor()
-  local buf = vim.api.nvim_get_current_buf()
-  local cursor = vim.api.nvim_win_get_cursor(0)
-  vim.api.nvim_buf_add_highlight(buf, config.namespace, "Cursor", cursor[1] - 1, cursor[2], cursor[2] + 1)
-end
-
-function M.hide_cursor()
-  local buf = vim.api.nvim_get_current_buf()
-  vim.api.nvim_buf_clear_namespace(buf, config.namespace, 0, -1)
-end
-
-function M.back()
-  local node = Keys.get_tree(M.mode, M.buf).tree:get(M.keys, -1) or Keys.get_tree(M.mode).tree:get(M.keys, -1)
-  if node then
-    M.keys = node.prefix_i
-  end
-end
-
-function M.execute(prefix_i, mode, buf)
-  local global_node = Keys.get_tree(mode).tree:get(prefix_i)
-  local buf_node = buf and Keys.get_tree(mode, buf).tree:get(prefix_i) or nil
-
-  if global_node and global_node.mapping and Keys.is_hook(prefix_i, global_node.mapping.cmd) then
-    return
-  end
-  if buf_node and buf_node.mapping and Keys.is_hook(prefix_i, buf_node.mapping.cmd) then
+  if not (M.buf or M.win) then
     return
   end
 
-  local hooks = {}
+  ---@type number?, number?
+  local buf, win = M.buf, M.win
+  M.buf, M.win = nil, nil
 
-  local function unhook(nodes, nodes_buf)
-    for _, node in pairs(nodes) do
-      if Keys.is_hooked(node.mapping.prefix, mode, nodes_buf) then
-        table.insert(hooks, { node.mapping.prefix, nodes_buf })
-        Keys.hook_del(node.mapping.prefix, mode, nodes_buf)
-      end
+  local function try_close()
+    pcall(vim.api.nvim_win_close, win, true)
+    pcall(vim.api.nvim_buf_delete, buf, { force = true })
+    win = win and vim.api.nvim_win_is_valid(win) and win or nil
+    buf = buf and vim.api.nvim_buf_is_valid(buf) and buf or nil
+    if win or buf then
+      vim.schedule(try_close)
     end
   end
 
-  -- make sure we remove all WK hooks before executing the sequence
-  -- this is to make existing keybindongs work and prevent recursion
-  unhook(Keys.get_tree(mode).tree:path(prefix_i))
-  if buf then
-    unhook(Keys.get_tree(mode, buf).tree:path(prefix_i), buf)
-  end
-
-  -- feed CTRL-O again if called from CTRL-O
-  local full_mode = Util.get_mode()
-  if full_mode == "nii" or full_mode == "nir" or full_mode == "niv" or full_mode == "vs" then
-    vim.api.nvim_feedkeys(Util.t("<C-O>"), "n", false)
-  end
-
-  -- handle registers that were passed when opening the popup
-  if M.reg ~= '"' and M.mode ~= "i" and M.mode ~= "c" then
-    vim.api.nvim_feedkeys('"' .. M.reg, "n", false)
-  end
-
-  if M.count and M.count ~= 0 then
-    prefix_i = M.count .. prefix_i
-  end
-
-  -- feed the keys with remap
-  vim.api.nvim_feedkeys(prefix_i, "m", true)
-
-  -- defer hooking WK until after the keys were executed
-  vim.defer_fn(function()
-    for _, hook in pairs(hooks) do
-      Keys.hook_add(hook[1], mode, hook[2])
-    end
-  end, 0)
+  try_close()
 end
 
-function M.open(keys, opts)
+---@return wk.Win
+function M.opts()
+  return vim.tbl_deep_extend("force", { col = 0, row = math.huge }, Config.win, {
+    relative = "editor",
+    style = "minimal",
+    focusable = false,
+    noautocmd = true,
+    wo = {
+      scrolloff = 0,
+      foldenable = false,
+    },
+    bo = {
+      buftype = "nofile",
+      bufhidden = "wipe",
+      filetype = "wk",
+    },
+  })
+end
+
+---@param opts wk.Win
+function M.mount(opts)
+  local win_opts = vim.deepcopy(opts)
+  win_opts.wo = nil
+  win_opts.bo = nil
+  win_opts.padding = nil
+  win_opts.no_overlap = nil
+
+  if M.valid() then
+    win_opts.noautocmd = nil
+    return vim.api.nvim_win_set_config(M.win, win_opts)
+  end
+
+  M.buf = vim.api.nvim_create_buf(false, true)
+  Util.bo(M.buf, opts.bo)
+  M.win = vim.api.nvim_open_win(M.buf, false, win_opts)
+  Util.wo(M.win, opts.wo)
+end
+
+---@param field string
+---@param value string
+---@return string
+function M.replace(field, value)
+  for _, repl in pairs(Config.replace[field]) do
+    value = type(repl) == "function" and (repl(value) or value) or value:gsub(repl[1], repl[2])
+  end
+  return value
+end
+
+---@param node wk.Node
+---@param opts? {default?: "count"|"path", parent_key?: string}
+function M.item(node, opts)
   opts = opts or {}
-  M.keys = keys or ""
-  M.mode = opts.mode or Util.get_mode()
-  M.count = vim.api.nvim_get_vvar("count")
-  M.reg = vim.api.nvim_get_vvar("register")
-
-  if string.find(vim.o.clipboard, "unnamedplus") and M.reg == "+" then
-    M.reg = '"'
+  opts.default = opts.default or "count"
+  local child_count = Tree.count(node)
+  local desc = node.desc
+  if not desc and node.keymap and node.keymap.rhs ~= "" and type(node.keymap.rhs) == "string" then
+    desc = node.keymap.rhs --[[@as string]]
   end
-
-  if string.find(vim.o.clipboard, "unnamed") and M.reg == "*" then
-    M.reg = '"'
+  if not desc and opts.default == "count" and child_count > 0 then
+    desc = child_count .. " keymap" .. (child_count > 1 and "s" or "")
   end
-
-  M.show_cursor()
-  M.on_keys(opts)
+  if not desc and opts.default == "path" then
+    desc = node.keys
+  end
+  desc = M.replace("desc", desc or "")
+  local icon, icon_hl ---@type string?, string?
+  if node.mapping and node.mapping.icon then
+    icon, icon_hl = Icons.get(node.mapping.icon)
+  end
+  if not icon and not (node.parent and node.parent.plugin) then
+    icon, icon_hl = Icons.get({ keymap = node.keymap, desc = node.desc })
+  end
+  local parent_key = opts.parent_key and M.replace("key", opts.parent_key) or ""
+  ---@type wk.Item
+  return setmetatable({
+    node = node,
+    icon = icon,
+    icon_hl = icon_hl,
+    key = parent_key .. M.replace("key", node.key),
+    desc = child_count > 0 and Config.icons.group .. desc or desc,
+    group = child_count > 0,
+  }, { __index = node })
 end
 
-function M.is_enabled(buf)
-  local buftype = vim.api.nvim_buf_get_option(buf, "buftype")
-  for _, bt in ipairs(config.options.disable.buftypes) do
-    if bt == buftype then
-      return false
+---@param node wk.Node
+---@param opts? {title?: boolean}
+function M.trail(node, opts)
+  opts = opts or {}
+  local trail = {} ---@type string[][]
+  while node do
+    local desc = node.desc and (Config.icons.group .. M.replace("desc", node.desc))
+      or node.key and M.replace("key", node.key)
+      or ""
+    node = node.parent
+    if desc ~= "" then
+      if node and #trail > 0 then
+        table.insert(trail, 1, {
+          " " .. Config.icons.breadcrumb .. " ",
+          opts.title and "WhichKeyTitle" or "WhichKeySeparator",
+        })
+      end
+      table.insert(trail, 1, { desc, opts.title and "WhichKeyTitle" or "WhichKeyGroup" })
     end
   end
-
-  local filetype = vim.api.nvim_buf_get_option(buf, "filetype")
-  for _, bt in ipairs(config.options.disable.filetypes) do
-    if bt == filetype then
-      return false
-    end
+  if #trail > 0 then
+    table.insert(trail, 1, { " " })
+    table.insert(trail, { " " })
+    return trail
   end
-
-  return true
 end
 
-function M.on_keys(opts)
-  local buf = vim.api.nvim_get_current_buf()
+function M.show()
+  local state = State.state
+  if not state or not state.node.children then
+    M.hide()
+    return
+  end
+  local text = require("which-key.text").new()
 
-  while true do
-    -- loop
-    M.read_pending()
+  ---@type wk.Node[]
+  local children = vim.tbl_values(state.node.children or {})
 
-    local results = Keys.get_mappings(M.mode, M.keys, buf)
-
-    --- Check for an exact match. Feedkeys with remap
-    if results.mapping and not results.mapping.group and #results.mappings == 0 then
-      M.hide()
-      if results.mapping.fn then
-        results.mapping.fn()
+  ---@type wk.Item[]
+  local items = {}
+  for _, node in ipairs(children) do
+    local use = true
+    if state.filter.global == false and node.global then
+      use = false
+    end
+    if state.filter["local"] == false and not node.global then
+      use = false
+    end
+    if use then
+      local child_count = Tree.count(node)
+      if child_count > 0 and child_count <= Config.expand then
+        for _, child in ipairs(vim.tbl_values(node.children or {})) do
+          table.insert(items, M.item(child, { parent_key = node.key }))
+        end
       else
-        M.execute(M.keys, M.mode, buf)
+        table.insert(items, M.item(node))
       end
-      return
     end
+  end
 
-    -- Check for no mappings found. Feedkeys without remap
-    if #results.mappings == 0 then
-      M.hide()
-      -- only execute if an actual key was typed while WK was open
-      if opts.auto then
-        M.execute(M.keys, M.mode, buf)
+  M.sort(items, Config.sort)
+
+  ---@type wk.Col[]
+  local cols = {
+    { key = "key", hl = "WhichKey", align = "right" },
+    { key = "sep", hl = "WhichKeySeparator", default = Config.icons.separator },
+    { key = "icon", padding = { 0, 0 } },
+  }
+  if state.node.plugin then
+    vim.list_extend(cols, Plugins.cols(state.node.plugin))
+  end
+  cols[#cols + 1] = { key = "desc", width = math.huge }
+
+  local t = Layout.new({ cols = cols, rows = items })
+
+  local opts = M.opts()
+  local container = {
+    width = Layout.dim(vim.o.columns, vim.o.columns, opts.width),
+    height = Layout.dim(vim.o.lines, vim.o.lines, opts.height),
+  }
+  local _, _, max_row_width = t:cells()
+  local box_width = Layout.dim(max_row_width, container.width, Config.layout.width)
+  local box_count = math.max(math.floor(container.width / (box_width + Config.layout.spacing)), 1)
+  box_width = math.floor(container.width / box_count)
+  local box_height = math.max(math.ceil(#items / box_count), 2)
+
+  local rows = t:layout({ width = box_width - Config.layout.spacing })
+
+  for _ = 1, Config.win.padding[1] + 1 do
+    text:nl()
+  end
+
+  for l = 1, box_height do
+    text:append(string.rep(" ", Config.win.padding[2]))
+    for b = 1, box_count do
+      local i = (b - 1) * box_height + l
+      local item = items[i]
+      local row = rows[i]
+      text:append(string.rep(" ", Config.layout.spacing))
+      if item then
+        for c, col in ipairs(row) do
+          local hl = col.hl
+          if cols[c].key == "desc" then
+            hl = item.group and "WhichKeyGroup" or "WhichKeyDesc"
+          end
+          if cols[c].key == "icon" then
+            hl = item.icon_hl
+          end
+          text:append(col.value, hl)
+        end
       end
-      return
     end
+    text:nl()
+  end
+  text:trim()
 
-    local layout = Layout:new(results)
+  for _ = 1, Config.win.padding[1] do
+    text:nl()
+  end
 
-    if M.is_enabled(buf) then
-      if not M.is_valid() then
-        M.show()
-      end
+  local show_keys = Config.show_keys
 
-      M.render(layout:layout(M.win))
+  local has_border = opts.border and opts.border ~= "none"
+  if not has_border then
+    opts.footer = nil
+    opts.title = nil
+  end
+  if opts.title == true then
+    opts.title = M.trail(state.node, { title = true })
+    show_keys = false
+  end
+  if opts.footer == true then
+    opts.footer = M.trail(state.node, { title = true })
+    show_keys = false
+  end
+  if not opts.title then
+    opts.title = nil
+    opts.title_pos = nil
+  end
+  if not opts.footer then
+    opts.footer = nil
+    opts.footer_pos = nil
+  end
+
+  local bw = has_border and 2 or 0
+
+  opts.width = Layout.dim(text:width() + bw, vim.o.columns, opts.width)
+  opts.height = Layout.dim(text:height() + bw, vim.o.lines, opts.height)
+
+  if Config.show_help then
+    opts.height = opts.height + 1
+  end
+
+  -- top-left
+  opts.col = Layout.dim(opts.col, vim.o.columns - opts.width)
+  opts.row = Layout.dim(opts.row, vim.o.lines - opts.height)
+
+  opts.width = opts.width - bw
+  opts.height = opts.height - bw
+  M.check_overlap(opts)
+
+  if Config.show_help or show_keys then
+    text:nl()
+  end
+  if show_keys then
+    text:append(" ")
+    for _, segment in ipairs(M.trail(state.node) or {}) do
+      text:append(segment[1], segment[2])
     end
-    vim.cmd([[redraw]])
+  end
+  if Config.show_help then
+    local col = text:col({ display = true })
+    local ws = string.rep(" ", math.floor((opts.width - 30) / 2) - col)
+    text:append(ws)
+    text:append("<esc>", "WhichKey"):append(" close", "WhichKeySeparator")
+    text:append(" ")
+    text:append("<bs>", "WhichKey"):append(" go up a level", "WhichKeySeparator")
+  end
+  text:trim()
 
-    local c = M.getchar()
+  M.mount(opts)
 
-    if c == Util.t("<esc>") then
-      M.hide()
-      break
-    elseif c == Util.t(config.options.popup_mappings.scroll_down) then
-      M.scroll(false)
-    elseif c == Util.t(config.options.popup_mappings.scroll_up) then
-      M.scroll(true)
-    elseif c == Util.t("<bs>") then
-      M.back()
-    else
-      M.keys = M.keys .. c
-    end
+  text:render(M.buf)
+  vim.api.nvim_win_call(M.win, function()
+    vim.fn.winrestview({ topline = 1 })
+  end)
+  vim.cmd.redraw()
+end
+
+---@param opts wk.Win
+function M.check_overlap(opts)
+  if Config.win.no_overlap == false then
+    return
+  end
+  local row, col = vim.fn.screenrow(), vim.fn.screencol()
+  local overlaps = (row >= opts.row and row <= opts.row + opts.height)
+    and (col >= opts.col and col <= opts.col + opts.width)
+  -- dd(overlaps and "overlaps" or "no overlap", {
+  --   editor = { lines = vim.o.lines, columns = vim.o.columns },
+  --   cursor = { col = col, row = row },
+  --   win = { row = opts.row, col = opts.col, height = opts.height, width = opts.width },
+  --   overlaps = overlaps,
+  -- })
+  if overlaps then
+    opts.row = row + 1
+    opts.height = math.max(vim.o.lines - opts.row, 1)
   end
 end
 
----@param text Text
-function M.render(text)
-  vim.api.nvim_buf_set_lines(M.buf, 0, -1, false, text.lines)
-  local height = #text.lines
-  if height > config.options.layout.height.max then
-    height = config.options.layout.height.max
-  end
-  vim.api.nvim_win_set_height(M.win, height)
-  if vim.api.nvim_buf_is_valid(M.buf) then
-    vim.api.nvim_buf_clear_namespace(M.buf, config.namespace, 0, -1)
-  end
-  for _, data in ipairs(text.hl) do
-    highlight(M.buf, config.namespace, data.group, data.line, data.from, data.to)
-  end
+---@param up boolean
+function M.scroll(up)
+  assert(M.valid(), "invalid view")
+  local height = vim.api.nvim_win_get_height(M.win)
+  local delta = math.ceil((up and -1 or 1) * height / 2)
+  local view = vim.api.nvim_win_call(M.win, vim.fn.winsaveview)
+  local top = view.topline ---@type number
+  top = top + delta
+  top = math.max(top, 1)
+  top = math.min(top, vim.api.nvim_buf_line_count(M.buf) - height + 1)
+  vim.api.nvim_win_call(M.win, function()
+    vim.fn.winrestview({ topline = top, lnum = top })
+  end)
 end
 
 return M

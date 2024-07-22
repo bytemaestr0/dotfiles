@@ -2,15 +2,13 @@
 
 ---@class ChadrcConfig
 ---@field ui? UIConfig
---- The module to be imported and merged with the default plugin settings
----@field plugins? string
---- Lazy.nvim setup opts
---- Check `:h lazy.nvim-configuration` for the exact options
----@field lazy_nvim? LazyConfig
 ---@field base46? Base46Config
+---@field lsp? NvLspConfig
+---@field term? TermConfig
+---@field cheatsheet? NvCheatsheetConfig
 
 ---@class Base46Config
----@field integrations? ExtendedModules[]
+---@field integrations? Base46Integrations[]
 
 --- UI related configuration
 --- e.g. colorschemes, statusline themes, cmp themes, dashboard, some LSP ui related
@@ -55,10 +53,7 @@
 ---@field statusline? NvStatusLineConfig
 ---@field tabufline? NvTabLineConfig
 ---@field nvdash? NvDashboardConfig
----@field cheatsheet? NvCheatsheetConfig
----@field lsp? NvLspConfig
 --- Whether to enable LSP Semantic Tokens highlighting
----@field lsp_semantic_tokens? boolean
 --- List of extras themes for other plugins not in NvChad that you want to compile
 
 --- Options for stylings of nvim-cmp
@@ -95,10 +90,8 @@
 ---         end,
 ---     }
 --- ```
----@field modules? table<string, fun(): string>
+---@field modules? table<string, string | fun(): string>
 --- Maximum length for the progress messages section
----@field lspprogress_len? integer
-
 --- Options for NvChad Tabufline
 ---@class NvTabLineConfig
 --- Whether to use/load tabufline or not
@@ -107,9 +100,8 @@
 --- If true, load tabufline when there is at least 2 buffers opened
 ---@field lazyload? boolean
 --- The order is a list of module names from default modules + your modules
----@field order? ('"available_space"'|'"treeOffset"'|'"buffers"'|'"tabs"'|'"btns"')[] | string[]
+---@field order? ('"treeOffset"'|'"buffers"'|'"tabs"'|'"btns"')[] | string[]
 --- Show numbers on tabufline buffer tabs
----@field show_numbers? boolean
 --- Your modules to be added to the tabufline
 --- ```lua
 ---     modules = {
@@ -132,6 +124,7 @@
 ---@class NvCheatsheetConfig
 --- Cheatsheet theme
 ---@field theme? '"grid"'|'"simple"'
+---@field excluded_groups? string[]
 
 ---@class NvDashButtonConfig
 ---@field [1] string Description for the button
@@ -141,4 +134,25 @@
 ---Options for NvChad/ui lsp configuration
 ---@class NvLspConfig
 ---@field signature? boolean showing LSP function signatures as you type
----@field semantic_tokens? boolean Lsp semantic_tokens highlighting
+
+---@class TermWinOpts
+---@field winhl string
+
+---@class TermSizes
+---@field sp number
+---@field vsp number
+---@field ["bo sp"] number
+---@field ["bo vsp"] number
+
+---@class TermFloat
+---@field relative string
+---@field row number
+---@field col number
+---@field width number
+---@field height number
+---@field border string
+
+---@class TermConfig
+---@field winopts TermWinOpts
+---@field sizes TermSizes
+---@field float TermFloat

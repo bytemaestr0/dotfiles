@@ -12,7 +12,6 @@ local namespace = vim.api.nvim_create_namespace "indent_blankline"
 
 local M = {}
 
----@package
 M.initialized = false
 
 ---@type table<number, { scope: TSNode?, left_offset: number, top_offset: number, tick: number }>
@@ -214,6 +213,8 @@ M.refresh = function(bufnr)
         indent_opts.vartabstop = ""
     end
 
+    local has_empty_foldtext = utils.has_empty_foldtext(bufnr)
+
     local indent_state
     local next_whitespace_tbl = {}
     local empty_line_counter = 0
@@ -317,7 +318,7 @@ M.refresh = function(bufnr)
 
         local whitespace = utils.get_whitespace(line)
         local foldclosed = utils.get_foldclosed(bufnr, row)
-        if is_current_buffer and foldclosed == row then
+        if is_current_buffer and foldclosed == row and not has_empty_foldtext then
             local foldtext = utils.get_foldtextresult(bufnr, row)
             local foldtext_whitespace = utils.get_whitespace(foldtext)
             if vim.fn.strdisplaywidth(foldtext_whitespace, 0) < vim.fn.strdisplaywidth(whitespace, 0) then

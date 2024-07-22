@@ -15,6 +15,26 @@ function M.get_icons()
   return icons
 end
 
+function M.get_icons_by_filename()
+  return icons_by_filename
+end
+
+function M.get_icons_by_extension()
+  return icons_by_file_extension
+end
+
+function M.get_icons_by_operating_system()
+  return icons_by_operating_system
+end
+
+function M.get_icons_by_desktop_environment()
+  return icons_by_desktop_environment
+end
+
+function M.get_icons_by_window_manager()
+  return icons_by_window_manager
+end
+
 local global_opts = {
   override = {},
   strict = false,
@@ -54,6 +74,8 @@ local filetypes = {
   ["avif"] = "avif",
   ["bash"] = "bash",
   ["bib"] = "bib",
+  ["bicep"] = "bicep",
+  ["bicepparam"] = "bicepparam",
   ["bzl"] = "bzl",
   ["brewfile"] = "brewfile",
   ["blueprint"] = "blp",
@@ -63,7 +85,6 @@ local filetypes = {
   ["gemfile"] = "gemfile$",
   ["lesser"] = "copying.lesser",
   ["vagrantfile"] = "vagrantfile$",
-  ["aac"] = "aac",
   ["awk"] = "awk",
   ["bmp"] = "bmp",
   ["c"] = "c",
@@ -104,7 +125,6 @@ local filetypes = {
   ["eruby"] = "erb",
   ["fennel"] = "fnl",
   ["fish"] = "fish",
-  ["flac"] = "flac",
   ["forth"] = "fs",
   ["fortran"] = "f90",
   ["fsharp"] = "f#",
@@ -163,15 +183,9 @@ local filetypes = {
   ["make"] = "makefile",
   ["markdown"] = "markdown",
   ["material"] = "material",
-  ["m4a"] = "m4a",
-  ["m4v"] = "m4v",
   ["mdx"] = "mdx",
   ["mint"] = "mint",
-  ["mkv"] = "mkv",
   ["motoko"] = "mo",
-  ["mov"] = "mov",
-  ["mp3"] = "mp3",
-  ["mp4"] = "mp4",
   ["mustache"] = "mustache",
   ["nim"] = "nim",
   ["nix"] = "nix",
@@ -179,7 +193,6 @@ local filetypes = {
   ["node"] = "node_modules",
   ["obj"] = "obj",
   ["ocaml"] = "ml",
-  ["ogg"] = "ogg",
   ["openscad"] = "scad",
   ["opus"] = "opus",
   ["otf"] = "otf",
@@ -254,7 +267,6 @@ local filetypes = {
   ["vim"] = "vim",
   ["vue"] = "vue",
   ["wasm"] = "wasm",
-  ["wav"] = "wav",
   ["webm"] = "webm",
   ["webp"] = "webp",
   ["webpack"] = "webpack",
@@ -544,6 +556,7 @@ end
 
 function M.set_icon(user_icons)
   icons = vim.tbl_extend("force", icons, user_icons or {})
+  global_opts.override = vim.tbl_extend("force", global_opts.override, user_icons or {})
   if not global_opts.color_icons then
     return
   end

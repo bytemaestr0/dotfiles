@@ -1,5 +1,8 @@
 require "nvchad.options"
 
+-- add yours here!
+
+-- local o = vim.o
 vim.opt.wrap = false
 vim.api.nvim_create_user_command(
     'Count',

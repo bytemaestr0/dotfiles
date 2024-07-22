@@ -13,25 +13,28 @@
 ] @keyword.function
 
 [
-  "class"
   "clone"
   "declare"
   "default"
   "echo"
   "enddeclare"
-  "enum"
   "extends"
   "global"
   "goto"
   "implements"
   "insteadof"
-  "interface"
   "print"
-  "namespace"
   "new"
-  "trait"
   "unset"
 ] @keyword
+
+[
+  "enum"
+  "class"
+  "interface"
+  "namespace"
+  "trait"
+] @keyword.type
 
 [
   "abstract"
@@ -245,6 +248,16 @@
       (name) @type)
   ]
   (name) @constant)
+
+(scoped_property_access_expression
+  scope: [
+    (name) @type
+    (qualified_name
+      (name) @type)
+  ])
+
+(scoped_property_access_expression
+  name: (variable_name) @variable.member)
 
 (trait_declaration
   name: (name) @type)
