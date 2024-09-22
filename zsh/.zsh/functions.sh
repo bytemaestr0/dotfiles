@@ -76,6 +76,14 @@ function qemuconv() {
 function merge_files() {
   python $HOME/pent/python/merge_files.py
 }
+function wing++() {
+  if [ -z "$1" ]; then
+    echo "Usage: wing++ <filename>"
+    return 1 
+  fi
+  filename="${1%.*}"
+  x86_64-w64-mingw32-g++ $filename".cpp" -o $filename".exe" -static -static-libgcc -static-libstdc++ -lws2_32
+}
 function zdel() {
   zellij ka >/dev/null
   zellij da >/dev/null

@@ -11,7 +11,7 @@ layout {
         }
     }
     floating_panes {
-      pane command="bashtop" {
+      pane command="ani-cli" {
         x 25
         width 154
         height "55%"
