@@ -4,7 +4,7 @@ source_dir="$(realpath $(dirname $0))"
 dest_dir="$HOME"
 
 echo "Source Directory: $HOME/.zsh"
-echo "Destination Directory:$(realpath $(dirname $0))zsh/.zsh"
+echo "Destination Directory:$(realpath $(dirname $0))/zsh/.zsh"
 
 compare_directories() {
     local app_dir="$1"

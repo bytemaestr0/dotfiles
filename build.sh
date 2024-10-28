@@ -43,13 +43,16 @@ else
   git clone https://github.com/NvChad/starter ~/.config/nvim && nvim
 fi
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-   
-sudo cp -r $dotfiles/konsole/. $HOME/
+
 sudo cp -r $dotfiles/zsh/. $HOME/
 sudo cp -r $dotfiles/nvim/. $HOME/
 sudo cp -r $dotfiles/kitty/. $HOME/
 sudo cp -r $dotfiles/zellij/. $HOME/
-
+if [ "$USER" = "root" ]; then
+    cp $dotfiles/root/.zshrc $HOME/
+else
+    cp $dotfiles/zsh/.zshrc $HOME/
+fi
 git config --global --add oh-my-zsh.hide-dirty 1
 
 sudo chmod -R u=rwX,go=rX ~/ && sudo chown -R $realuser:$realuser ~/
