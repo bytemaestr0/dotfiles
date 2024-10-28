@@ -47,8 +47,8 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 sudo cp -r $dotfiles/konsole/. $HOME/
 sudo cp -r $dotfiles/zsh/. $HOME/
 sudo cp -r $dotfiles/nvim/. $HOME/
-sudo cp -r $dotfiles/plasma/. $HOME/
 sudo cp -r $dotfiles/kitty/. $HOME/
+sudo cp -r $dotfiles/zellij/. $HOME/
 
 git config --global --add oh-my-zsh.hide-dirty 1
 

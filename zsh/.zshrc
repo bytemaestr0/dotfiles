@@ -8,9 +8,10 @@ export ZSHCONF="$HOME/.zsh/"
 export MAVEN="$HOME/pent/maven/"
 export SCRIPTS="$HOME/pent/scripts"
 export TOOLKIT="$HOME/pent/toolkit/"
+export SUDO_EDITOR=/usr/local/bin/nvim
 ZSH_DISABLE_COMPFIX="true"
 ZSH_THEME="classyTouch"
-DISABLE_LS_COLORS="true"
+DISABLE_LS_COLORS="false"
 plugins=(
   zsh-navigation-tools
 	zsh-autosuggestions
@@ -22,4 +23,7 @@ source $HOME/.zsh/aliases.sh
 source $HOME/.zsh/functions.sh
 #omz shell:
 source $ZSH/oh-my-zsh.sh
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
 

@@ -17,7 +17,6 @@ compare_directories() {
         echo "Source Directory: $config_dir/$app_name"
         echo "Destination Directory: $HOME/.config/$app_name"
         sync_directories "$config_dir/$app_name" "$HOME/.config/$app_name"
-        cp $HOME/.config/plasma-org.kde.plasma.desktop-appletsrc $(realpath $(dirname $0))/plasma/.config/plasma-org.kde.plasma.desktop-appletsrc
     fi  
 
     if [ -d "$local_share_dir/$app_name" ]; then
